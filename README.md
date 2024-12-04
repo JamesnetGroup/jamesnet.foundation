@@ -1,10 +1,15 @@
 # **Jamesnet.Foundation**
 
 [![NuGet](https://img.shields.io/nuget/v/Jamesnet.Foundation.svg)](https://www.nuget.org/packages/Jamesnet.Foundation)  
-[![License](https://img.shields.io/github/license/your-username/Jamesnet.Foundation)](https://opensource.org/licenses/MIT)  
-[![Build Status](https://img.shields.io/github/actions/workflow/status/your-username/Jamesnet.Foundation/build.yml)](https://github.com/your-username/Jamesnet.Foundation/actions)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Foundation.svg)](https://www.nuget.org/packages/Jamesnet.Foundation)  
+[![License](https://img.shields.io/github/license/JamesnetGroup/jamesnet.foundation)](https://opensource.org/licenses/MIT)  
+[![Build Status](https://img.shields.io/github/actions/workflow/status/JamesnetGroup/jamesnet.foundation/build.yml?branch=main)](https://github.com/JamesnetGroup/jamesnet.foundation/actions)  
+[![Issues](https://img.shields.io/github/issues/JamesnetGroup/jamesnet.foundation)](https://github.com/JamesnetGroup/jamesnet.foundation/issues)  
+[![Stars](https://img.shields.io/github/stars/JamesnetGroup/jamesnet.foundation?style=social)](https://github.com/JamesnetGroup/jamesnet.foundation)
 
-`Jamesnet.Foundation` is a core framework designed to simplify the development of **XAML-based applications** across multiple platforms, including **WPF**, **OpenSilver**, **Uno**, and **WinUI 3**. By focusing on **dependency injection**, **view injection**, and **modular architecture**, it enables developers to build scalable and maintainable applications with ease.
+---
+
+`Jamesnet.Foundation` is a core framework designed to simplify the development of **XAML-based applications** across multiple platforms, including **WPF**, **OpenSilver**, **Uno**, **WinUI 3**, and **UWP**. By focusing on **dependency injection**, **view injection**, and **modular architecture**, it enables developers to build scalable and maintainable applications with ease.
 
 ---
 
@@ -31,6 +36,7 @@ dotnet add package Jamesnet.Platform.WPF
 dotnet add package Jamesnet.Platform.OpenSilver
 dotnet add package Jamesnet.Platform.Uno
 dotnet add package Jamesnet.Platform.WinUI3
+dotnet add package Jamesnet.Platform.UWP
 ```
 
 ---
@@ -79,7 +85,10 @@ The cornerstone of `Jamesnet.Foundation`. WPF remains a powerful and widely adop
 `Uno Platform` enables the creation of native applications across **Windows**, **macOS**, **Linux**, **iOS**, **Android**, and **WebAssembly** using a single codebase. It is ideal for targeting diverse platforms with consistent UI and shared logic.
 
 ### **WinUI 3: Modern Windows Applications**
-`WinUI 3` represents the next generation of Windows application development, providing modern APIs, improved performance, and more flexibility than its predecessors. It seamlessly integrates with the Windows App SDK for building cutting-edge desktop applications.
+`WinUI 3` represents the next generation of Windows application development, building upon the foundation of **UWP** with modern APIs, improved performance, and more flexibility. It is the go-to choice for creating desktop applications within the Windows ecosystem.
+
+### **UWP: Universal Windows Platform**
+`UWP` enables developers to build apps for a wide range of Windows devices. While its functionality is foundational to **WinUI 3**, it remains a viable option for developing modern Windows Store applications.
 
 ---
 
@@ -111,13 +120,13 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## **Contact**
 
-For questions or support, please open a [GitHub Issue](https://github.com/your-username/Jamesnet.Foundation/issues).
+For questions or support, please open a [GitHub Issue](https://github.com/JamesnetGroup/jamesnet.foundation/issues).
 
 ---
 
-### **Key Highlights**
-1. Platforms like `OpenSilver` and `Uno` are given a professional yet approachable introduction, emphasizing their unique roles.
-2. `WPF` remains at the forefront as the "core platform," while others are clearly differentiated in their purpose.
-3. Extraneous details about `UWP` or deep comparisons are avoided to maintain clarity and focus.
+### **Key Updates**
+1. `UWP` is included while emphasizing its foundational role in `WinUI 3` development.
+2. `OpenSilver` and `Uno` platforms are described with a focus on their distinct use cases.
+3. Badges are fully updated to match the `Jamesnet.Foundation` repository.  
 
-Feel free to tweak this further if needed! 😊
+Feel free to share additional feedback! 😊
