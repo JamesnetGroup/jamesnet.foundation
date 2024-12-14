@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <DefineSilverlight>true</DefineSilverlight>
+    <OpenSilverType>7</OpenSilverType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenSilver" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="OpenSilverLayer.cs" />
+    <Compile Include="Scripts\DeviceInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Jamesnet.Foundation\Jamesnet.Foundation.csproj" />
+  </ItemGroup>
+
+</Project>
