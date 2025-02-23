@@ -2,22 +2,32 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>12</LangVersion>
     <EnableDefaultItems>false</EnableDefaultItems>
     <DefineSilverlight>true</DefineSilverlight>
     <OpenSilverType>7</OpenSilverType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenSilver" Version="3.1.0" />
+    <PackageReference Include="OpenSilver" Version="3.1.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="IMobileView.cs" />
     <Compile Include="OpenSilverLayer.cs" />
+    <Compile Include="Scenario.cs" />
+    <Compile Include="ScenarioContent.cs" />
     <Compile Include="Scripts\DeviceInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Jamesnet.Foundation\Jamesnet.Foundation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
 </Project>

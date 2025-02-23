@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Windows;
 
 namespace Jamesnet.Foundation;
 
@@ -27,6 +26,7 @@ public class LayerManager : ILayerManager
 
     public void Show(string layerName, IView view)
     {
+        Console.WriteLine($"NavigateContent Show: {layerName} {view}");
         if (!_layers.TryGetValue(layerName, out var layer))
         {
             throw new InvalidOperationException($"Layer not registered: {layerName}");
@@ -34,7 +34,19 @@ public class LayerManager : ILayerManager
 
         if (view == null)
         {
-            layer.Content = null;
+            layer.UIContent = null;
+            Console.WriteLine($"NavigateContent layer.Content is null");
+            return;
+        }
+
+        if (layer.UIContent!= null && layer.UIContent.Equals(view))
+        {
+            Console.WriteLine($"NavigateContent view is equal");
+            if(view.DataContext is IViewLoadable loadable)
+            {
+                Console.WriteLine($"Loaded");
+                loadable.OnLoaded(view);
+            }
             return;
         }
 
@@ -43,12 +55,13 @@ public class LayerManager : ILayerManager
             Add(layerName, view);
         }
 
-        if (layer.Content is IView iview && iview.DataContext is IViewClosed viewClosed)
+        if (layer.UIContent is IView iview && iview.DataContext is IViewClosed viewClosed)
         {
-            viewClosed.ViewClosed(view);
+            viewClosed.OnClosed(view);
         }
 
-        layer.Content = view as UIElement;
+        layer.UIContent = view;
+        Console.WriteLine($"Content set to layer {view}");
 
         if (view.DataContext is IViewActivated activated)
         { 
@@ -78,7 +91,7 @@ public class LayerManager : ILayerManager
     {
         if (_layers.TryGetValue(layerName, out var layer))
         {
-            layer.Content = null;
+            layer.UIContent = null;
         }
     }
 
@@ -128,5 +141,14 @@ public class LayerManager : ILayerManager
             layerManager.Register(layer.LayerName, layer);
             layer.IsRegistered = true;
         }
+    }
+
+    public ILayer GetLayer(string layerName)
+    {
+        if (_layers.ContainsKey(layerName))
+        { 
+            return _layers[layerName];
+        }
+        return null;
     }
 }

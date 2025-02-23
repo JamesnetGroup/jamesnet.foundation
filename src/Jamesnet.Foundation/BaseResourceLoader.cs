@@ -21,22 +21,20 @@ public abstract class BaseResourceLoader<TItem, TResult>
 
     private YamlData LoadYamlData(Assembly assembly, string resourcePath)
     {
-        YamlData yamlData = new YamlData();
+        YamlData yamlData = [];
 
         object result = YamlConverter.ParseResource(assembly, resourcePath);
-        IEnumerable<object> data = result as IEnumerable<object>;
 
-        if (data == null)
+        if (result is not IEnumerable<object> data)
         {
             throw new InvalidOperationException("YamlConverter.ParseResource did not return an IEnumerable<object>");
         }
 
         foreach (object item in data)
         {
-            IDictionary<string, string> dict = item as IDictionary<string, string>;
-            if (dict != null)
+            if (item is IDictionary<string, string> dict)
             {
-                yamlData.Add(new YamlItem(dict));
+                yamlData.Add(new(dict));
             }
         }
 

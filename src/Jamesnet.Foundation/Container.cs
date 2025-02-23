@@ -101,13 +101,11 @@ public class Container : IContainer
         var constructor = constructors.FirstOrDefault(c => c.GetParameters().Length > 0) ?? constructors.First();
         var parameters = constructor.GetParameters().Select(p => Resolve(p.ParameterType)).ToArray();
         var instance = constructor.Invoke(parameters);
-
         if (instance is IView view)
         {
             var initializer = Resolve<IViewModelInitializer>();
             initializer.InitializeViewModel(view);
             var viewModelInitialized = view.DataContext != null;
-
             var loadedEvent = type.GetEvent("Loaded");
             if (loadedEvent != null)
             {
@@ -115,9 +113,9 @@ public class Container : IContainer
                 Action<object, object> handler = null;
                 handler = (s, e) =>
                 {
-                    if (viewModelInitialized && view.DataContext is IViewLoadable loadable)
+                    if (viewModelInitialized && view.DataContext is IViewFirstLoadable loadable)
                     {
-                        loadable.Loaded(view);
+                        loadable.OnFirstLoad(view);
                     }
                     // 이벤트 제거를 위한 델리게이트 생성
                     var delegateType = loadedEvent.EventHandlerType;
@@ -125,12 +123,23 @@ public class Container : IContainer
                     loadedEvent.RemoveEventHandler(view, removeHandler);
                 };
 
+                // 매번 실행되는 Loaded 이벤트 핸들러
+                Action<object, object> loadHandler = (s, e) =>
+                {
+                    if (viewModelInitialized && view.DataContext is IViewLoadable loadable)
+                    {
+                        loadable.OnLoaded(view);
+                    }
+                };
+
                 // 이벤트 추가를 위한 델리게이트 생성
                 var addHandler = Delegate.CreateDelegate(loadedEvent.EventHandlerType, (object)handler.Target, handler.Method);
+                var loadDelegate = Delegate.CreateDelegate(loadedEvent.EventHandlerType, (object)loadHandler.Target, loadHandler.Method);
+
                 loadedEvent.AddEventHandler(view, addHandler);
+                loadedEvent.AddEventHandler(view, loadDelegate);
             }
         }
-
         return instance;
     }
 }

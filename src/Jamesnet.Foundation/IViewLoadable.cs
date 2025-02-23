@@ -1,8 +1,13 @@
 ﻿namespace Jamesnet.Foundation;
 
+public interface IViewFirstLoadable
+{
+    void OnFirstLoad(object view);
+}
+
 public interface IViewLoadable
 {
-    void Loaded(object view);
+    void OnLoaded(object view);
 }
 
 public interface IViewActivated
@@ -12,5 +17,5 @@ public interface IViewActivated
 
 public interface IViewClosed
 {
-    void ViewClosed(object view);
+    void OnClosed(object view);
 }

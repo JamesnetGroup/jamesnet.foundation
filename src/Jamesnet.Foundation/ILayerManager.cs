@@ -7,4 +7,5 @@ public interface ILayerManager
     void Show(string layerName, IView view);
     void Hide(string layerName);
     void Mapping(string layerName, IView view);
+    ILayer GetLayer(string layerName);
 }
