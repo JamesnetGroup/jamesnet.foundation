@@ -28,7 +28,6 @@ public class DeviceInfo
         var width = WindowWidth;
         var height = WindowHeight;
 
-        // 가로나 세로 중 작은 쪽이 600px 이하면 모바일로 간주
         var smallerDimension = Math.Min(width, height);
         IsMobile = smallerDimension <= _mobileWidth;
         UseDockMode = IsMobile;

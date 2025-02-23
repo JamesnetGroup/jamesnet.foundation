@@ -5,10 +5,28 @@
     <OpenSilverType>7</OpenSilverType>
     <LangVersion>12</LangVersion>
     <Nullable>disable</Nullable>
+    <Version>9.0.1</Version>
+    <Authors>Jaewung Lee, Yang Qu</Authors>
+    <Product>Jamesnet.Foundation</Product>
+    <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
+    <PackageProjectUrl>https://github.com/jamesnetgroup/jamesnet.foundation</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jamesnetgroup/jamesnet.foundation</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>jamesnet,xaml,wpf,opensilver,uno-platform,winui3,uwp</PackageTags>
+    <Description>XAML-Based Cross-Platform</Description>
   </PropertyGroup>
   
   <ItemGroup>
     <Compile Remove="InjectAttribute.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="LICENSE">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   
   <ItemGroup>

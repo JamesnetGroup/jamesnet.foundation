@@ -1,3 +1,0 @@
-﻿namespace Jamesnet.Platform.OpenSilver;
-
-
