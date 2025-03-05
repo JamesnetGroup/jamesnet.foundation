@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Jamesnet.Platform.Uwp</id>
-    <version>9.0.4</version>
+    <version>9.1.0</version>
     <authors>Jaewung Lee, Yang Qu</authors>
     <description>XAML-Based Cross-Platform - UWP Implementation</description>
     <copyright>Copyright © 2025 JamesnetGroup</copyright>

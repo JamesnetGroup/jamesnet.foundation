@@ -5,7 +5,7 @@
     <OutputType>Library</OutputType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Jamesnet.Platform.Uno</PackageId>
-    <Version>9.0.4</Version>
+    <Version>9.1.0</Version>
     <Authors>Jaewung Lee, Yang Qu</Authors>
     <Product>Jamesnet.Platform.Uno</Product>
     <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
