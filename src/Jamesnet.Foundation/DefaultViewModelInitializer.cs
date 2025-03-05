@@ -1,49 +1,50 @@
 using System;
 using System.Linq;
 
-namespace Jamesnet.Foundation;
-
-public class DefaultViewModelInitializer : IViewModelInitializer
+namespace Jamesnet.Foundation
 {
-    private readonly IContainer _container;
-    private readonly IViewModelMapper _viewModelMapper;
-
-    public DefaultViewModelInitializer(IContainer container, IViewModelMapper viewModelMapper)
+    public class DefaultViewModelInitializer : IViewModelInitializer
     {
-        _container = container;
-        _viewModelMapper = viewModelMapper;
-    }
+        private readonly IContainer _container;
+        private readonly IViewModelMapper _viewModelMapper;
 
-    public void InitializeViewModel(IView view)
-    {
-        var viewType = view.GetType();
-        var viewModelType = _viewModelMapper.GetViewModelType(viewType);
-
-        if (viewModelType != null)
+        public DefaultViewModelInitializer(IContainer container, IViewModelMapper viewModelMapper)
         {
-            var viewModel = CreateViewModel(viewModelType);
-            view.DataContext = viewModel;
+            _container = container;
+            _viewModelMapper = viewModelMapper;
         }
-    }
 
-    private object CreateViewModel(Type viewModelType)
-    {
-        try
+        public void InitializeViewModel(IView view)
         {
-            var constructor = viewModelType.GetConstructors()
-                .OrderByDescending(c => c.GetParameters().Length)
-                .First();
+            var viewType = view.GetType();
+            var viewModelType = _viewModelMapper.GetViewModelType(viewType);
 
-            var parameters = constructor.GetParameters()
-                .Select(p => _container.Resolve(p.ParameterType))
-                .ToArray();
-
-            return constructor.Invoke(parameters);
+            if (viewModelType != null)
+            {
+                var viewModel = CreateViewModel(viewModelType);
+                view.DataContext = viewModel;
+            }
         }
-        catch (Exception ex)
+
+        private object CreateViewModel(Type viewModelType)
         {
-            throw new InvalidOperationException($"Failed to create ViewModel of type {viewModelType.Name}.", ex);
-        }
-    }
+            try
+            {
+                var constructor = viewModelType.GetConstructors()
+                    .OrderByDescending(c => c.GetParameters().Length)
+                    .First();
 
+                var parameters = constructor.GetParameters()
+                    .Select(p => _container.Resolve(p.ParameterType))
+                    .ToArray();
+
+                return constructor.Invoke(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to create ViewModel of type {viewModelType.Name}.", ex);
+            }
+        }
+
+    }
 }

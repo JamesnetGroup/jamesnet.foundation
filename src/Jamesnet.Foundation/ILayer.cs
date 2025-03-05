@@ -1,8 +1,9 @@
-namespace Jamesnet.Foundation;
-
-public interface ILayer
+namespace Jamesnet.Foundation
 {
-    object UIContent { get; set; }
-    string LayerName { get; set; }
-    bool IsRegistered { get; set; }
+    public interface ILayer
+    {
+        object UIContent { get; set; }
+        string LayerName { get; set; }
+        bool IsRegistered { get; set; }
+    }
 }

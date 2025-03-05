@@ -5,10 +5,19 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Version>9.0.4</Version>
+    <Authors>Jaewung Lee, Yang Qu</Authors>
+    <Product>Jamesnet.Platform.Wpf</Product>
+    <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
+    <PackageProjectUrl>https://github.com/jamesnetgroup/jamesnet.foundation</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jamesnetgroup/jamesnet.foundation</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>jamesnet,xaml,wpf,opensilver,uno-platform,winui3,uwp</PackageTags>
+    <Description>XAML-Based Cross-Platform</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jamesnet.Core\Jamesnet.Core.csproj" />
+    <ProjectReference Include="..\Jamesnet.Foundation\Jamesnet.Foundation.csproj" />
   </ItemGroup>
 
 </Project>

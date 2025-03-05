@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Jamesnet.Platform.Uwp</id>
+    <version>9.0.4</version>
+    <authors>Jaewung Lee, Yang Qu</authors>
+    <description>XAML-Based Cross-Platform - UWP Implementation</description>
+    <copyright>Copyright © 2025 JamesnetGroup</copyright>
+    <tags>jamesnet,xaml,wpf,opensilver,uno-platform,winui3,uwp</tags>
+    <repository type="git" url="https://github.com/jamesnetgroup/jamesnet.foundation" />
+  </metadata>
+  <files>
+    <file src="bin\Release\**\*.*" target="lib\uap10.0" />
+  </files>
+</package>

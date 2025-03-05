@@ -1,22 +1,23 @@
 ﻿using System;
 
-namespace Jamesnet.Foundation;
-
-public static class ContainerProvider
+namespace Jamesnet.Foundation
 {
-    private static IContainer _container;
-
-    public static void SetContainer(IContainer container)
+    public static class ContainerProvider
     {
-        _container = container;
-    }
+        private static IContainer _container;
 
-    public static IContainer GetContainer()
-    {
-        if (_container == null)
+        public static void SetContainer(IContainer container)
         {
-            throw new InvalidOperationException("IContainer has not been set. Make sure to call ContainerProvider.SetContainer in your App class.");
+            _container = container;
         }
-        return _container;
+
+        public static IContainer GetContainer()
+        {
+            if (_container == null)
+            {
+                throw new InvalidOperationException("IContainer has not been set. Make sure to call ContainerProvider.SetContainer in your App class.");
+            }
+            return _container;
+        }
     }
 }

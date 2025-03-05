@@ -1,11 +1,12 @@
-namespace Jamesnet.Foundation;
-
-public interface ILayerManager
+namespace Jamesnet.Foundation
 {
-    void Register(string layerName, ILayer layer);
-    void Add(string layerName, IView view);
-    void Show(string layerName, IView view);
-    void Hide(string layerName);
-    void Mapping(string layerName, IView view);
-    ILayer GetLayer(string layerName);
+    public interface ILayerManager
+    {
+        void Register(string layerName, ILayer layer);
+        void Add(string layerName, IView view);
+        void Show(string layerName, IView view);
+        void Hide(string layerName);
+        void Mapping(string layerName, IView view);
+        ILayer GetLayer(string layerName);
+    }
 }

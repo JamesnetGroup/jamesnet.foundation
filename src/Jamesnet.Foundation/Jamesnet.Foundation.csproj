@@ -2,10 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <OpenSilverType>7</OpenSilverType>
-    <LangVersion>12</LangVersion>
+    <LangVersion>10</LangVersion>
     <Nullable>disable</Nullable>
-    <Version>9.0.1</Version>
+    <Version>9.0.4</Version>
     <Authors>Jaewung Lee, Yang Qu</Authors>
     <Product>Jamesnet.Foundation</Product>
     <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
@@ -30,7 +29,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
 </Project>

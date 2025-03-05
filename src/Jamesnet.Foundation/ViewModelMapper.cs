@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Jamesnet.Foundation;
-
-public class ViewModelMapper : IViewModelMapper
+namespace Jamesnet.Foundation
 {
-    private readonly Dictionary<Type, Type> _mappings = new Dictionary<Type, Type>();
-
-    public void Register<TView, TViewModel>() where TView : IView where TViewModel : class
+    public class ViewModelMapper : IViewModelMapper
     {
-        _mappings[typeof(TView)] = typeof(TViewModel);
-    }
+        private readonly Dictionary<Type, Type> _mappings = new Dictionary<Type, Type>();
 
-    public Type GetViewModelType(Type viewType)
-    {
-        return _mappings.TryGetValue(viewType, out var viewModelType) ? viewModelType : null;
+        public void Register<TView, TViewModel>() where TView : IView where TViewModel : class
+        {
+            _mappings[typeof(TView)] = typeof(TViewModel);
+        }
+
+        public Type GetViewModelType(Type viewType)
+        {
+            return _mappings.TryGetValue(viewType, out var viewModelType) ? viewModelType : null;
+        }
     }
 }

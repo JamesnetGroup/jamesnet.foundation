@@ -1,15 +1,16 @@
 using System.Globalization;
 
-namespace Jamesnet.Foundation;
-
-public static class StringExtensions
+namespace Jamesnet.Foundation
 {
-    public static string ToPascal(this string input)
+    public static class StringExtensions
     {
-        if (string.IsNullOrEmpty(input))
-            return input;
+        public static string ToPascal(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
 
-        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-        return textInfo.ToTitleCase(input.ToLower()).Replace(" ", "");
+            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+            return textInfo.ToTitleCase(input.ToLower()).Replace(" ", "");
+        }
     }
 }

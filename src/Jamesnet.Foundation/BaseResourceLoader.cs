@@ -2,42 +2,43 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Jamesnet.Foundation;
-
-public abstract class BaseResourceLoader<TItem, TResult>
+namespace Jamesnet.Foundation
 {
-    protected abstract string AssemblyName { get; }
-    protected abstract string ResourcePath { get; }
-    protected abstract IEnumerable<TItem> ConvertToItems(YamlData rawData);
-    protected abstract TResult OrganizeItems(IEnumerable<TItem> items);
-
-    public TResult LoadAndOrganize()
+    public abstract class BaseResourceLoader<TItem, TResult>
     {
-        Assembly assembly = Assembly.Load(AssemblyName);
-        YamlData rawData = LoadYamlData(assembly, ResourcePath);
-        IEnumerable<TItem> items = ConvertToItems(rawData);
-        return OrganizeItems(items);
-    }
+        protected abstract string AssemblyName { get; }
+        protected abstract string ResourcePath { get; }
+        protected abstract IEnumerable<TItem> ConvertToItems(YamlData rawData);
+        protected abstract TResult OrganizeItems(IEnumerable<TItem> items);
 
-    private YamlData LoadYamlData(Assembly assembly, string resourcePath)
-    {
-        YamlData yamlData = [];
-
-        object result = YamlConverter.ParseResource(assembly, resourcePath);
-
-        if (result is not IEnumerable<object> data)
+        public TResult LoadAndOrganize()
         {
-            throw new InvalidOperationException("YamlConverter.ParseResource did not return an IEnumerable<object>");
+            Assembly assembly = Assembly.Load(AssemblyName);
+            YamlData rawData = LoadYamlData(assembly, ResourcePath);
+            IEnumerable<TItem> items = ConvertToItems(rawData);
+            return OrganizeItems(items);
         }
 
-        foreach (object item in data)
+        private YamlData LoadYamlData(Assembly assembly, string resourcePath)
         {
-            if (item is IDictionary<string, string> dict)
+            YamlData yamlData = new();
+
+            object result = YamlConverter.ParseResource(assembly, resourcePath);
+
+            if (result is not IEnumerable<object> data)
             {
-                yamlData.Add(new(dict));
+                throw new InvalidOperationException("YamlConverter.ParseResource did not return an IEnumerable<object>");
             }
-        }
 
-        return yamlData;
+            foreach (object item in data)
+            {
+                if (item is IDictionary<string, string> dict)
+                {
+                    yamlData.Add(new(dict));
+                }
+            }
+
+            return yamlData;
+        }
     }
 }

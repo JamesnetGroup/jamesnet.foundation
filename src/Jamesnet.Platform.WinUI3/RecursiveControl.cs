@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections;
 
-namespace Jamesnet.WinUI3;
+namespace Jamesnet.Platform.WinUI3;
 
 public class RecursiveControl : ListBoxItem
 {

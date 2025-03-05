@@ -1,9 +1,10 @@
 ﻿using System;
 
-namespace Jamesnet.Foundation;
-
-public interface IViewModelMapper
+namespace Jamesnet.Foundation
 {
-    void Register<TView, TViewModel>() where TView : IView where TViewModel : class;
-    Type GetViewModelType(Type viewType);
+    public interface IViewModelMapper
+    {
+        void Register<TView, TViewModel>() where TView : IView where TViewModel : class;
+        Type GetViewModelType(Type viewType);
+    }
 }

@@ -1,154 +1,155 @@
 using System;
 using System.Collections.Generic;
 
-namespace Jamesnet.Foundation;
-
-public class LayerManager : ILayerManager
+namespace Jamesnet.Foundation
 {
-    private readonly Dictionary<string, ILayer> _layers = new Dictionary<string, ILayer>();
-    private readonly Dictionary<string, List<IView>> _layerViews = new Dictionary<string, List<IView>>();
-    private readonly Dictionary<string, IView> _layerViewMappings = new Dictionary<string, IView>();
-
-    public void Register(string layerName, ILayer layer)
+    public class LayerManager : ILayerManager
     {
-        Console.WriteLine($"LayerManager.Register called with layerName: {layerName}");
+        private readonly Dictionary<string, ILayer> _layers = new Dictionary<string, ILayer>();
+        private readonly Dictionary<string, List<IView>> _layerViews = new Dictionary<string, List<IView>>();
+        private readonly Dictionary<string, IView> _layerViewMappings = new Dictionary<string, IView>();
 
-        if (!_layers.ContainsKey(layerName))
+        public void Register(string layerName, ILayer layer)
         {
-            _layers[layerName] = layer;
-            _layerViews[layerName] = new List<IView>();
-            if (_layerViewMappings.TryGetValue(layerName, out var view))
+            Console.WriteLine($"LayerManager.Register called with layerName: {layerName}");
+
+            if (!_layers.ContainsKey(layerName))
             {
-                Show(layerName, view);
+                _layers[layerName] = layer;
+                _layerViews[layerName] = new List<IView>();
+                if (_layerViewMappings.TryGetValue(layerName, out var view))
+                {
+                    Show(layerName, view);
+                }
             }
         }
-    }
 
-    public void Show(string layerName, IView view)
-    {
-        Console.WriteLine($"NavigateContent Show: {layerName} {view}");
-        if (!_layers.TryGetValue(layerName, out var layer))
+        public void Show(string layerName, IView view)
         {
-            throw new InvalidOperationException($"Layer not registered: {layerName}");
-        }
-
-        if (view == null)
-        {
-            layer.UIContent = null;
-            Console.WriteLine($"NavigateContent layer.Content is null");
-            return;
-        }
-
-        if (layer.UIContent!= null && layer.UIContent.Equals(view))
-        {
-            Console.WriteLine($"NavigateContent view is equal");
-            if(view.DataContext is IViewLoadable loadable)
+            Console.WriteLine($"NavigateContent Show: {layerName} {view}");
+            if (!_layers.TryGetValue(layerName, out var layer))
             {
-                Console.WriteLine($"Loaded");
-                loadable.OnLoaded(view);
+                throw new InvalidOperationException($"Layer not registered: {layerName}");
             }
-            return;
+
+            if (view == null)
+            {
+                layer.UIContent = null;
+                Console.WriteLine($"NavigateContent layer.Content is null");
+                return;
+            }
+
+            if (layer.UIContent!= null && layer.UIContent.Equals(view))
+            {
+                Console.WriteLine($"NavigateContent view is equal");
+                if(view.DataContext is IViewLoadable loadable)
+                {
+                    Console.WriteLine($"Loaded");
+                    loadable.OnLoaded(view);
+                }
+                return;
+            }
+
+            if (!_layerViews[layerName].Contains(view))
+            {
+                Add(layerName, view);
+            }
+
+            if (layer.UIContent is IView iview && iview.DataContext is IViewClosed viewClosed)
+            {
+                viewClosed.OnClosed(view);
+            }
+
+            layer.UIContent = view;
+            Console.WriteLine($"Content set to layer {view}");
+
+            if (view.DataContext is IViewActivated activated)
+            { 
+                activated.ViewActivated(view);
+            }
         }
 
-        if (!_layerViews[layerName].Contains(view))
+        public void Add(string layerName, IView view)
         {
-            Add(layerName, view);
+            if (!_layers.ContainsKey(layerName))
+            {
+                throw new InvalidOperationException($"Layer not registered: {layerName}");
+            }
+
+            if (!_layerViews.ContainsKey(layerName))
+            {
+                _layerViews[layerName] = new List<IView>();
+            }
+
+            if (!_layerViews[layerName].Contains(view))
+            {
+                _layerViews[layerName].Add(view);
+            }
         }
 
-        if (layer.UIContent is IView iview && iview.DataContext is IViewClosed viewClosed)
+        public void Hide(string layerName)
         {
-            viewClosed.OnClosed(view);
+            if (_layers.TryGetValue(layerName, out var layer))
+            {
+                layer.UIContent = null;
+            }
         }
 
-        layer.UIContent = view;
-        Console.WriteLine($"Content set to layer {view}");
-
-        if (view.DataContext is IViewActivated activated)
-        { 
-            activated.ViewActivated(view);
-        }
-    }
-
-    public void Add(string layerName, IView view)
-    {
-        if (!_layers.ContainsKey(layerName))
+        public void Mapping(string layerName, IView view)
         {
-            throw new InvalidOperationException($"Layer not registered: {layerName}");
+            _layerViewMappings[layerName] = view;
         }
 
-        if (!_layerViews.ContainsKey(layerName))
+        public static void InitializeLayer(ILayer layer)
         {
-            _layerViews[layerName] = new List<IView>();
-        }
+            if (layer == null)
+                throw new ArgumentNullException(nameof(layer));
 
-        if (!_layerViews[layerName].Contains(view))
-        {
-            _layerViews[layerName].Add(view);
-        }
-    }
+            var type = layer.GetType();
+            var loadedEvent = type.GetEvent("Loaded");
+            if (loadedEvent != null)
+            {
+                Delegate handler = null;
 
-    public void Hide(string layerName)
-    {
-        if (_layers.TryGetValue(layerName, out var layer))
-        {
-            layer.UIContent = null;
-        }
-    }
+                Action<object, object> handlerAction = (s, e) =>
+                {
+                    RegisterToLayerManager(layer);
+                    loadedEvent.RemoveEventHandler(layer, handler);
+                };
 
-    public void Mapping(string layerName, IView view)
-    {
-        _layerViewMappings[layerName] = view;
-    }
+                handler = Delegate.CreateDelegate(loadedEvent.EventHandlerType, handlerAction.Target, handlerAction.Method);
 
-    public static void InitializeLayer(ILayer layer)
-    {
-        if (layer == null)
-            throw new ArgumentNullException(nameof(layer));
-
-        var type = layer.GetType();
-        var loadedEvent = type.GetEvent("Loaded");
-        if (loadedEvent != null)
-        {
-            Delegate handler = null;
-
-            Action<object, object> handlerAction = (s, e) =>
+                loadedEvent.AddEventHandler(layer, handler);
+            }
+            else
             {
                 RegisterToLayerManager(layer);
-                loadedEvent.RemoveEventHandler(layer, handler);
-            };
-
-            handler = Delegate.CreateDelegate(loadedEvent.EventHandlerType, handlerAction.Target, handlerAction.Method);
-
-            loadedEvent.AddEventHandler(layer, handler);
+            }
         }
-        else
+
+
+        public static void RegisterToLayerManager(ILayer layer)
         {
-            RegisterToLayerManager(layer);
+            if (string.IsNullOrEmpty(layer.LayerName) || layer.IsRegistered)
+            {
+                return;
+            }
+
+            var layerManager = ContainerProvider.GetContainer().Resolve<ILayerManager>();
+            if (layerManager != null)
+            {
+                layerManager.Register(layer.LayerName, layer);
+                layer.IsRegistered = true;
+            }
         }
-    }
 
-
-    public static void RegisterToLayerManager(ILayer layer)
-    {
-        if (string.IsNullOrEmpty(layer.LayerName) || layer.IsRegistered)
+        public ILayer GetLayer(string layerName)
         {
-            return;
+            if (_layers.ContainsKey(layerName))
+            { 
+                return _layers[layerName];
+            }
+            return null;
         }
-
-        var layerManager = ContainerProvider.GetContainer().Resolve<ILayerManager>();
-        if (layerManager != null)
-        {
-            layerManager.Register(layer.LayerName, layer);
-            layer.IsRegistered = true;
-        }
-    }
-
-    public ILayer GetLayer(string layerName)
-    {
-        if (_layers.ContainsKey(layerName))
-        { 
-            return _layers[layerName];
-        }
-        return null;
     }
 }

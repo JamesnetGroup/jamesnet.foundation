@@ -7,8 +7,8 @@
     <ProjectGuid>{080A74D4-ACCE-47C3-A09F-2D5A3539DE2D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Jamesnet.Uwp</RootNamespace>
-    <AssemblyName>Jamesnet.Uwp</AssemblyName>
+    <RootNamespace>Jamesnet.Platform.Uwp</RootNamespace>
+    <AssemblyName>Jamesnet.Platform.Uwp</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
@@ -133,9 +133,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\leagueoflegends-uwp2\Jamesnet.Core\Jamesnet.Core.csproj">
-      <Project>{83c372fd-2447-4d82-a96d-682b212205f1}</Project>
-      <Name>Jamesnet.Core</Name>
+    <ProjectReference Include="..\Jamesnet.Foundation\Jamesnet.Foundation.csproj">
+      <Project>{bc971247-ae28-433a-876c-a89a967f00f8}</Project>
+      <Name>Jamesnet.Foundation</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

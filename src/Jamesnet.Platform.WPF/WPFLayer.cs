@@ -1,16 +1,15 @@
-﻿using Jamesnet.Core;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows;
-using System.Windows.Media;
+using Jamesnet.Foundation;
 
-namespace Jamesnet.Windows;
+namespace Jamesnet.Platform.Wpf;
 
 public class WPFLayer : ContentControl, ILayer
 {
     public static readonly DependencyProperty LayerNameProperty =
         DependencyProperty.Register(nameof(LayerName), typeof(string), typeof(WPFLayer), new PropertyMetadata(null, OnLayerNameChanged));
 
-    private bool _isRegistered = false;
+    public bool IsRegistered { get; set; }
 
     public string LayerName
     {
@@ -18,53 +17,25 @@ public class WPFLayer : ContentControl, ILayer
         set => SetValue(LayerNameProperty, value);
     }
 
-    static WPFLayer()
+    public object UIContent
     {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(WPFLayer), new FrameworkPropertyMetadata(typeof(WPFLayer)));
+        get => (object)Content;
+        set => Content = value;
     }
+
     public WPFLayer()
     {
-        Loaded += UnoLayer_Loaded;
-    }
-
-    protected override void OnContentChanged(object oldContent, object newContent)
-    {
-        base.OnContentChanged(oldContent, newContent);
-    }
-
-    private void UnoLayer_Loaded(object sender, RoutedEventArgs e)
-    {
-        RegisterToLayerManager();
-    }
-
-    private void RegisterToLayerManager()
-    {
-        if (string.IsNullOrEmpty(LayerName) || _isRegistered)
-        {
-            return;
-        }
-
-        var layerManager = ContainerProvider.GetContainer().Resolve<ILayerManager>();
-        if (layerManager != null)
-        {
-            layerManager.Register(LayerName, this);
-            _isRegistered = true;
-        }
+        DefaultStyleKey = typeof(WPFLayer);
+        if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this)) return;
+        LayerManager.InitializeLayer(this);
     }
 
     private static void OnLayerNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        try
+        if (d is WPFLayer layer)
         {
-            if (d is WPFLayer layer)
-            {
-                layer._isRegistered = false;
-                layer.RegisterToLayerManager();
-            }
-        }
-        catch
-        {
-
+            layer.IsRegistered = false;
+            LayerManager.RegisterToLayerManager(layer);
         }
     }
 }

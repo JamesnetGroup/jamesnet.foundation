@@ -3,7 +3,7 @@ using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace Jamesnet.Uwp
+namespace Jamesnet.Platform.Uwp
 {
 
     public class CustomWrapPanel : Panel

@@ -1,6 +1,7 @@
-﻿namespace Jamesnet.Foundation;
-
-public interface IViewModelInitializer
+﻿namespace Jamesnet.Foundation
 {
-    void InitializeViewModel(IView view);
+    public interface IViewModelInitializer
+    {
+        void InitializeViewModel(IView view);
+    }
 }

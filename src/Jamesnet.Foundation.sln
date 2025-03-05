@@ -7,11 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jamesnet.Foundation", "Jame
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jamesnet.Platform.OpenSilver", "Jamesnet.Platform.OpenSilver\Jamesnet.Platform.OpenSilver.csproj", "{84113E31-A5E9-4C91-9F6A-5F4D8E4F772C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jamesnet.Platform.WPF", "Jamesnet.Platform.WPF\Jamesnet.Platform.WPF.csproj", "{005E49C3-4417-49F3-B4AD-263E88A64098}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jamesnet.Platform.Wpf", "Jamesnet.Platform.WPF\Jamesnet.Platform.Wpf.csproj", "{005E49C3-4417-49F3-B4AD-263E88A64098}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jamesnet.Platform.WinUI3", "Jamesnet.Platform.WinUI3\Jamesnet.Platform.WinUI3.csproj", "{AE97C902-3EAC-4A9B-931A-F841183DAABC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jamesnet.Platform.Uwp", "Jamesnet.Platform.UWP\Jamesnet.Platform.Uwp.csproj", "{080A74D4-ACCE-47C3-A09F-2D5A3539DE2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jamesnet.Platform.Uno", "Jamesnet.Platform.Uno\Jamesnet.Platform.Uno.csproj", "{266B23D1-DB86-463A-9D42-97F8096798A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{080A74D4-ACCE-47C3-A09F-2D5A3539DE2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{080A74D4-ACCE-47C3-A09F-2D5A3539DE2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{080A74D4-ACCE-47C3-A09F-2D5A3539DE2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{266B23D1-DB86-463A-9D42-97F8096798A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{266B23D1-DB86-463A-9D42-97F8096798A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{266B23D1-DB86-463A-9D42-97F8096798A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{266B23D1-DB86-463A-9D42-97F8096798A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

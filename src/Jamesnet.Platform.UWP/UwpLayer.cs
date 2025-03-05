@@ -1,8 +1,8 @@
-using Jamesnet.Core;
+using Jamesnet.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace Jamesnet.Uwp;
+namespace Jamesnet.Platform.Uwp;
 
 public class UwpLayer : ContentControl, ILayer
 {
@@ -15,6 +15,12 @@ public class UwpLayer : ContentControl, ILayer
     {
         get => (string)GetValue(LayerNameProperty);
         set => SetValue(LayerNameProperty, value);
+    }
+
+    public object UIContent
+    {
+        get => (object)Content;
+        set => Content = value;
     }
 
     public UwpLayer()

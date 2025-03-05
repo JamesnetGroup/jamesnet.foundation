@@ -2,11 +2,20 @@
   <PropertyGroup>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <RootNamespace>Jamesnet.WinUI3</RootNamespace>
+    <RootNamespace>Jamesnet.Platform.WinUI3</RootNamespace>
     <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
     <WindowsSdkPackageVersion>10.0.19041.38</WindowsSdkPackageVersion>
+    <Version>9.0.4</Version>
+    <Authors>Jaewung Lee, Yang Qu</Authors>
+    <Product>Jamesnet.Platform.WinUI3</Product>
+    <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
+    <PackageProjectUrl>https://github.com/jamesnetgroup/jamesnet.foundation</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jamesnetgroup/jamesnet.foundation</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>jamesnet,xaml,wpf,opensilver,uno-platform,winui3,uwp</PackageTags>
+    <Description>XAML-Based Cross-Platform</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jamesnet.Core\Jamesnet.Core.csproj" />
+    <ProjectReference Include="..\Jamesnet.Foundation\Jamesnet.Foundation.csproj" />
   </ItemGroup>
 </Project>

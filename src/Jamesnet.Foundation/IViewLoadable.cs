@@ -1,21 +1,22 @@
-﻿namespace Jamesnet.Foundation;
-
-public interface IViewFirstLoadable
+﻿namespace Jamesnet.Foundation
 {
-    void OnFirstLoad(object view);
-}
+    public interface IViewFirstLoadable
+    {
+        void OnFirstLoad(object view);
+    }
 
-public interface IViewLoadable
-{
-    void OnLoaded(object view);
-}
+    public interface IViewLoadable
+    {
+        void OnLoaded(object view);
+    }
 
-public interface IViewActivated
-{
-    void ViewActivated(object view);
-}
+    public interface IViewActivated
+    {
+        void ViewActivated(object view);
+    }
 
-public interface IViewClosed
-{
-    void OnClosed(object view);
+    public interface IViewClosed
+    {
+        void OnClosed(object view);
+    }
 }

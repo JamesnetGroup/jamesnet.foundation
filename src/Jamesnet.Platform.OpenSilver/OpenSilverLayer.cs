@@ -16,6 +16,7 @@ public class OpenSilverLayer : UserControl, ILayer
         get => (string)GetValue(LayerNameProperty);
         set => SetValue(LayerNameProperty, value);
     }
+
     public object UIContent
     {
         get=> (object)Content;
