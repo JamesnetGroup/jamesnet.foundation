@@ -1,64 +1,169 @@
 # Jamesnet.Foundation
 
-[![NuGet](https://img.shields.io/nuget/v/Jamesnet.Foundation.svg)](https://www.nuget.org/packages/Jamesnet.Foundation)  
-[![License](https://img.shields.io/github/license/JamesnetGroup/jamesnet.foundation)](https://opensource.org/licenses/MIT)
+`Jamesnet.Foundation` is a core library that provides common functionality across various platforms. It is referenced by several platform-specific projects, which utilize its essential features.
 
-**Jamesnet.Foundation** 是基于 **.NET Standard 2.0** 的核心框架，旨在简化基于 XAML 的应用程序开发。它支持依赖注入、视图注入以及模块化架构，并以 NuGet 包形式发布。此框架可通过以下平台专用扩展包进行扩展：
+[![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Foundation.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Foundation/)  [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Foundation.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Foundation/)
 
-## 平台扩展包
+> **Note:** NuGet publish date information is not available, so it is not included.
 
-- **Jamesnet.Platform.OpenSilver**
-- **Jamesnet.Platform.Wpf**
-- **Jamesnet.Platform.Uno**
-- **Jamesnet.Platform.WinUI3**
-- **Jamesnet.Platform.Uwp**
+## Supported Platforms
 
-## 安装
+- **[Jamesnet.Platform.OpenSilver](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.OpenSilver.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.OpenSilver.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)
+- **[Jamesnet.Platform.Wpf](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Wpf.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Wpf.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)
+- **[Jamesnet.Platform.Uno](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Uno.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Uno.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)
+- **[Jamesnet.Platform.Uwp](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Uwp.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Uwp.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)
+- **[Jamesnet.Platform.WinUI3](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.WinUI3.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.WinUI3.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)
 
-### 安装核心 Foundation
+## Installation
 
-```bash
-dotnet add package Jamesnet.Foundation
+Install the package using the NuGet Package Manager:
+
+```powershell
+Install-Package Jamesnet.Foundation
 ```
 
-### 安装平台扩展包
+For WPF projects, you should also install the following package:
 
-```bash
-dotnet add package Jamesnet.Platform.OpenSilver
-dotnet add package Jamesnet.Platform.Wpf
-dotnet add package Jamesnet.Platform.Uno
-dotnet add package Jamesnet.Platform.WinUI3
-dotnet add package Jamesnet.Platform.Uwp
+```powershell
+Install-Package Jamesnet.Platform.Wpf
 ```
 
-## 快速开始
+## Usage
 
-1. **初始化依赖注入**
+`Jamesnet.Foundation` supports application initialization through the `AppBootstrapper` class. The following example demonstrates how to extend `AppBootstrapper` in a WPF project for initialization.
 
-   ```csharp
-   var services = new ServiceCollection();
-   services.AddFoundation();         // 设置核心框架
-   services.AddPlatformSpecific();   // 注册平台相关服务
-   ```
+> **Note:** There is no need to explain the `virtual` keyword or the old `SetMainWindow` approach.
 
-2. **注册视图和视图模型**
+### Example: Using AppBootstrapper in a WPF Project
 
-   ```csharp
-   services.AddTransient<IMainView, MainView>();
-   services.AddTransient<IMainViewModel, MainViewModel>();
-   ```
+```csharp
+using Jamesnet.Foundation;
+using Jamesnet.Platform.Wpf; // WPF platform package reference
 
-3. **启动视图**
+namespace MyApp
+{
+    public class MyAppBootstrapper : AppBootstrapper
+    {
+        protected override void RegisterViewModels()
+        {
+            // Map the view to the view model.
+            ViewModelMapper.Register<MainContent, MainViewModel>();
+        }
 
-   ```csharp
-   var mainView = serviceProvider.GetRequiredService<IMainView>();
-   mainView.Show();
-   ```
+        protected override void RegisterDependencies(IContainer container)
+        {
+            // Register MainContent as the IView implementation with the key "MainContent".
+            Container.RegisterSingleton<IView, MainContent>("MainContent");
+        }
 
-## 许可证
+        protected override void SettingsLayer(ILayerManager layer, IContainer container)
+        {
+            // Perform mapping using the "Main" key.
+            Mapping("Main", container.Resolve<IView>("MainContent"));
+        }
+    }
 
-本项目采用 MIT 许可证，详情请参阅 [LICENSE](LICENSE) 文件。
+    public partial class App : Application
+    {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            var bootstrapper = new MyAppBootstrapper();
+            bootstrapper.Run(); // Execute application initialization
+        }
+    }
+}
+```
 
-## 联系与贡献
+In this example:
 
-如有疑问或建议，请在 [GitHub Issues](https://github.com/JamesnetGroup/jamesnet.foundation/issues) 中提交问题。
+- **Dependency Registration:**    `Container.RegisterSingleton<IView, MainContent>("MainContent");` registers `MainContent` as an implementation of the `IView` interface with the key `"MainContent"`.
+- **View-ViewModel Mapping:**    `ViewModelMapper.Register<MainContent, MainViewModel>();` maps the `MainContent` view to the `MainViewModel`.
+- **Layer Settings:**    `Mapping("Main", container.Resolve<IView>("MainContent"));` sets up the mapping for the "Main" layer using the registered view.
+
+---
+
+**中文版本**
+
+# Jamesnet.Foundation
+
+`Jamesnet.Foundation` 是一个提供跨多个平台通用功能的核心库。多个平台特定项目都引用了该库，并利用其基本功能。
+
+[![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Foundation.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Foundation/)  [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Foundation.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Foundation/)
+
+> **注意：** NuGet 发布日期信息不可用，因此未包含该信息。
+
+## 支持平台
+
+- **[Jamesnet.Platform.OpenSilver](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.OpenSilver.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.OpenSilver.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)
+- **[Jamesnet.Platform.Wpf](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Wpf.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Wpf.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)
+- **[Jamesnet.Platform.Uno](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Uno.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Uno.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)
+- **[Jamesnet.Platform.Uwp](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Uwp.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Uwp.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)
+- **[Jamesnet.Platform.WinUI3](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.WinUI3.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.WinUI3.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)
+
+## 安装方法
+
+使用 NuGet 包管理器安装该软件包：
+
+```powershell
+Install-Package Jamesnet.Foundation
+```
+
+对于 WPF 项目，还需安装以下软件包：
+
+```powershell
+Install-Package Jamesnet.Platform.Wpf
+```
+
+## 使用方法
+
+`Jamesnet.Foundation` 通过 `AppBootstrapper` 类支持应用程序初始化。下面的示例展示了如何在 WPF 项目中扩展 `AppBootstrapper` 进行初始化。
+
+> **注意：** 无需解释 `virtual` 关键字或旧的 `SetMainWindow` 方法。
+
+### 示例：在 WPF 项目中使用 AppBootstrapper
+
+```csharp
+using Jamesnet.Foundation;
+using Jamesnet.Platform.Wpf; // 引用 WPF 平台软件包
+
+namespace MyApp
+{
+    public class MyAppBootstrapper : AppBootstrapper
+    {
+        protected override void RegisterViewModels()
+        {
+            // 映射视图与视图模型。
+            ViewModelMapper.Register<MainContent, MainViewModel>();
+        }
+
+        protected override void RegisterDependencies(IContainer container)
+        {
+            // 将 MainContent 以键 "MainContent" 注册为 IView 接口的实现。
+            Container.RegisterSingleton<IView, MainContent>("MainContent");
+        }
+
+        protected override void SettingsLayer(ILayerManager layer, IContainer container)
+        {
+            // 使用 "Main" 键进行映射设置。
+            Mapping("Main", container.Resolve<IView>("MainContent"));
+        }
+    }
+
+    public partial class App : Application
+    {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            var bootstrapper = new MyAppBootstrapper();
+            bootstrapper.Run(); // 执行应用程序初始化
+        }
+    }
+}
+```
+
+在此示例中：
+
+- **依赖注册：**    `Container.RegisterSingleton<IView, MainContent>("MainContent");` 将 `MainContent` 作为 `IView` 接口的实现注册，并使用键 `"MainContent"`。
+- **视图-视图模型映射：**    `ViewModelMapper.Register<MainContent, MainViewModel>();` 将 `MainContent` 视图映射到 `MainViewModel`。
+- **图层设置：**    `Mapping("Main", container.Resolve<IView>("MainContent"));` 使用注册的视图通过键 `"Main"` 进行映射设置。
