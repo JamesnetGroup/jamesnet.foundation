@@ -1,7 +1,3 @@
-아래는 간단하고 깔끔하게 재작성한 README 예시입니다:
-
----
-
 # Jamesnet.Foundation
 
 [![NuGet](https://img.shields.io/nuget/v/Jamesnet.Foundation.svg)](https://www.nuget.org/packages/Jamesnet.Foundation)  
@@ -66,7 +62,3 @@ dotnet add package Jamesnet.Platform.Uwp
 ## 문의 및 기여
 
 문제나 개선 사항은 [GitHub Issues](https://github.com/JamesnetGroup/jamesnet.foundation/issues)에서 알려주시기 바랍니다.
-
----
-
-이 README는 핵심 정보와 설치 및 빠른 시작 가이드를 간결하게 제공합니다. 필요에 따라 내용을 추가하거나 수정해 사용하세요!
