@@ -4,14 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>10</LangVersion>
     <Nullable>disable</Nullable>
-    <Version>9.1.0</Version>
+    <Version>9.1.1</Version>
     <Authors>Jaewung Lee, Yang Qu</Authors>
     <Product>Jamesnet.Foundation</Product>
     <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
     <PackageProjectUrl>https://github.com/jamesnetgroup/jamesnet.foundation</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jamesnetgroup/jamesnet.foundation</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>jamesnet,xaml,wpf,opensilver,uno-platform,winui3,uwp</PackageTags>
+    <PackageTags>jamesnet,xaml,wpf,opensilver,uno-platform,winui3,uwp, avaloniaui</PackageTags>
     <Description>XAML-Based Cross-Platform</Description>
   </PropertyGroup>
   
