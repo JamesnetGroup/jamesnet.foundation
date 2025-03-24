@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace Jamesnet.Foundation
+namespace Jamesnet.Foundation;
+
+public class YamlData : List<YamlItem>
 {
-    public class YamlData : List<YamlItem>
-    {
-        public YamlData() : base() { }
-        public YamlData(IEnumerable<YamlItem> collection) : base(collection) { }
-    }
+    public YamlData() : base() { }
+    public YamlData(IEnumerable<YamlItem> collection) : base(collection) { }
 }

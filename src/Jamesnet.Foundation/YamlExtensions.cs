@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Jamesnet.Foundation
+namespace Jamesnet.Foundation;
+
+public static class YamlExtensions
 {
-    public static class YamlExtensions
+    public static T GetValue<T>(this IReadOnlyDictionary<string, string> dict, string key, T defaultValue = default)
     {
-        public static T GetValue<T>(this IReadOnlyDictionary<string, string> dict, string key, T defaultValue = default)
+        if (dict.TryGetValue(key, out string value))
         {
-            if (dict.TryGetValue(key, out string value))
+            try
             {
-                try
-                {
-                    return (T)Convert.ChangeType(value, typeof(T));
-                }
-                catch
-                {
-                    return defaultValue;
-                }
+                return (T)Convert.ChangeType(value, typeof(T));
             }
-            return defaultValue;
+            catch
+            {
+                return defaultValue;
+            }
         }
+        return defaultValue;
     }
 }

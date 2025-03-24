@@ -1,7 +1,6 @@
-﻿namespace Jamesnet.Foundation
+﻿namespace Jamesnet.Foundation;
+
+public interface IView
 {
-    public interface IView
-    {
-        object DataContext { get; set; }
-    }
+    object DataContext { get; set; }
 }

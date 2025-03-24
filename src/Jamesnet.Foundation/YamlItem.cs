@@ -1,22 +1,21 @@
 using System;
 using System.Collections.Generic;
 
-namespace Jamesnet.Foundation
+namespace Jamesnet.Foundation;
+
+public class YamlItem : Dictionary<string, string>
 {
-    public class YamlItem : Dictionary<string, string>
+    public YamlItem() : base() { }
+
+    public YamlItem(IDictionary<string, string> dictionary) : base(dictionary) { }
+
+    public T GetValue<T>(string key)
     {
-        public YamlItem() : base() { }
-
-        public YamlItem(IDictionary<string, string> dictionary) : base(dictionary) { }
-
-        public T GetValue<T>(string key)
+        string value;
+        if (TryGetValue(key, out value))
         {
-            string value;
-            if (TryGetValue(key, out value))
-            {
-                return (T)Convert.ChangeType(value, typeof(T));
-            }
-            return default(T);
+            return (T)Convert.ChangeType(value, typeof(T));
         }
+        return default(T);
     }
 }
