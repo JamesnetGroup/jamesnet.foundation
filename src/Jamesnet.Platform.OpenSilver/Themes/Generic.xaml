@@ -11,4 +11,19 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style TargetType="local:AnimatedOpenSilverLayer">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:AnimatedOpenSilverLayer">
+                    <Grid x:Name="PART_ContainerGrid">
+                        <ContentPresenter x:Name="PART_CurrentPresenter" 
+                                          Content="{TemplateBinding Content}" />
+                        <ContentPresenter x:Name="PART_NextPresenter" 
+                                          Opacity="0" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

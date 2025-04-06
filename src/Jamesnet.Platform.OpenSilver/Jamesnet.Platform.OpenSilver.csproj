@@ -6,7 +6,7 @@
     <EnableDefaultItems>false</EnableDefaultItems>
     <DefineSilverlight>true</DefineSilverlight>
     <OpenSilverType>7</OpenSilverType>
-    <Version>9.1.0</Version>
+    <Version>9.1.2</Version>
     <Authors>Jaewung Lee, Yang Qu</Authors>
     <Product>Jamesnet.Platform.OpenSilver</Product>
     <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
@@ -18,10 +18,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenSilver" Version="3.1.2" />
+    <PackageReference Include="OpenSilver" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="AnimatedOpenSilverLayer.cs" />
     <Compile Include="ContentCase.cs" />
     <Compile Include="IMobileView.cs" />
     <Compile Include="OpenSilverLayer.cs" />
