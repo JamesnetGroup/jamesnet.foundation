@@ -1,4 +1,6 @@
-﻿namespace Jamesnet.Foundation;
+﻿using System.Threading.Tasks;
+
+namespace Jamesnet.Foundation;
 
 public interface IViewFirstLoadable
 {
@@ -8,6 +10,11 @@ public interface IViewFirstLoadable
 public interface IViewLoadable
 {
     void OnLoaded(object view);
+}
+
+public interface IAsyncViewLoadable
+{
+    Task OnLoadedAsync(object view);
 }
 
 public interface IViewActivated
