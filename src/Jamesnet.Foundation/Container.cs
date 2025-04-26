@@ -94,7 +94,6 @@ public class Container : IContainer
         return false;
     }
 
-
     private object CreateInstance(Type type)
     {
         var constructors = type.GetConstructors();
@@ -109,7 +108,6 @@ public class Container : IContainer
             var loadedEvent = type.GetEvent("Loaded");
             if (loadedEvent != null)
             {
-                // 델리게이트를 Action으로 변환
                 Action<object, object> handler = null;
                 handler = (s, e) =>
                 {
@@ -117,13 +115,11 @@ public class Container : IContainer
                     {
                         loadable.OnFirstLoad(view);
                     }
-                    // 이벤트 제거를 위한 델리게이트 생성
                     var delegateType = loadedEvent.EventHandlerType;
                     var removeHandler = Delegate.CreateDelegate(delegateType, (object)handler.Target, handler.Method);
                     loadedEvent.RemoveEventHandler(view, removeHandler);
                 };
 
-                // 매번 실행되는 Loaded 이벤트 핸들러
                 Action<object, object> loadHandler = (s, e) =>
                 {
                     if (viewModelInitialized && view.DataContext is IViewLoadable loadable)
@@ -132,7 +128,6 @@ public class Container : IContainer
                     }
                 };
 
-                // 이벤트 추가를 위한 델리게이트 생성
                 var addHandler = Delegate.CreateDelegate(loadedEvent.EventHandlerType, (object)handler.Target, handler.Method);
                 var loadDelegate = Delegate.CreateDelegate(loadedEvent.EventHandlerType, (object)loadHandler.Target, loadHandler.Method);
 
