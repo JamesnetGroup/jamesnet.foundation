@@ -11,10 +11,12 @@ public interface IContainer
     void RegisterSingleton<TImplementation>(string name);
     void RegisterInstance<TInterface>(TInterface instance);
     void RegisterInstance<TInterface>(TInterface instance, string name);
+
     T Resolve<T>();
     T Resolve<T>(string name);
     object Resolve(Type type);
     object Resolve(Type type, string name);
+
     bool TryResolve<T>(out T result);
     bool TryResolve<T>(string name, out T result);
 }
