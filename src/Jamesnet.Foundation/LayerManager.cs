@@ -26,7 +26,6 @@ public class LayerManager : ILayerManager
 
     public void Show(string layerName, IView view)
     {
-        //Console.WriteLine($"NavigateContent Show: {layerName} {view}");
         if (!_layers.TryGetValue(layerName, out var layer))
         {
             throw new InvalidOperationException($"Layer not registered: {layerName}");
@@ -41,7 +40,6 @@ public class LayerManager : ILayerManager
 
         if (layer.UIContent!= null && layer.UIContent.Equals(view))
         {
-            //Console.WriteLine($"NavigateContent view is equal");
             if(view.DataContext is IViewLoadable loadable)
             {
                 loadable.OnLoaded(view);
@@ -60,7 +58,6 @@ public class LayerManager : ILayerManager
         }
 
         layer.UIContent = view;
-        //Console.WriteLine($"Content set to layer {view}");
 
         if (view.DataContext is IViewActivated activated)
         { 
