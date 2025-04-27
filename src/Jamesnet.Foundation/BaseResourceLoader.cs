@@ -8,8 +8,6 @@ public abstract class BaseResourceLoader<TItem, TResult>
 {
     protected abstract string AssemblyName { get; }
     protected abstract string ResourcePath { get; }
-    protected abstract IEnumerable<TItem> ConvertToItems(YamlData rawData);
-    protected abstract TResult OrganizeItems(IEnumerable<TItem> items);
 
     public TResult LoadAndOrganize()
     {
@@ -19,10 +17,12 @@ public abstract class BaseResourceLoader<TItem, TResult>
         return OrganizeItems(items);
     }
 
+    protected abstract IEnumerable<TItem> ConvertToItems(YamlData rawData);
+    protected abstract TResult OrganizeItems(IEnumerable<TItem> items);
+
     private YamlData LoadYamlData(Assembly assembly, string resourcePath)
     {
         YamlData yamlData = new();
-
         object result = YamlConverter.ParseResource(assembly, resourcePath);
 
         if (result is not IEnumerable<object> data)

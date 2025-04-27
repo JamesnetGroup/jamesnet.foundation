@@ -8,6 +8,8 @@ public class Container : IContainer
 {
     private readonly Dictionary<(Type, string), Func<object>> _registrations = new Dictionary<(Type, string), Func<object>>();
 
+    #region Registration Methods
+
     public void Register<TInterface, TImplementation>() where TImplementation : TInterface
     {
         Register<TInterface, TImplementation>(null);
@@ -44,6 +46,10 @@ public class Container : IContainer
     {
         _registrations[(typeof(TInterface), name)] = () => instance;
     }
+
+    #endregion
+
+    #region Resolution Methods
 
     public T Resolve<T>()
     {
@@ -94,18 +100,24 @@ public class Container : IContainer
         return false;
     }
 
+    #endregion
+
+    #region Helper Methods
+
     private object CreateInstance(Type type)
     {
         var constructors = type.GetConstructors();
         var constructor = constructors.FirstOrDefault(c => c.GetParameters().Length > 0) ?? constructors.First();
         var parameters = constructor.GetParameters().Select(p => Resolve(p.ParameterType)).ToArray();
         var instance = constructor.Invoke(parameters);
+
         if (instance is IView view)
         {
             var initializer = Resolve<IViewModelInitializer>();
             initializer.InitializeViewModel(view);
             var viewModelInitialized = view.DataContext != null;
             var loadedEvent = type.GetEvent("Loaded");
+
             if (loadedEvent != null)
             {
                 Action<object, object> handler = null;
@@ -135,6 +147,9 @@ public class Container : IContainer
                 loadedEvent.AddEventHandler(view, loadDelegate);
             }
         }
+
         return instance;
     }
+
+    #endregion
 }

@@ -11,8 +11,16 @@ public abstract class AppBootstrapper
         Container = new Container();
         Layer = new LayerManager();
         ViewModelMapper = new ViewModelMapper();
+
         ContainerProvider.SetContainer(Container);
         ConfigureContainer();
+    }
+
+    public void Run()
+    {
+        RegisterViewModels(ViewModelMapper);
+        RegisterDependencies(Container);
+        SettingsLayer(Layer, Container);
     }
 
     protected virtual void ConfigureContainer()
@@ -25,13 +33,5 @@ public abstract class AppBootstrapper
 
     protected abstract void RegisterViewModels(IViewModelMapper viewModelMapper);
     protected abstract void RegisterDependencies(IContainer container);
-
-    public void Run()
-    {
-        RegisterViewModels(ViewModelMapper);
-        RegisterDependencies(Container);
-        SettingsLayer(Layer, Container);
-    }
-
     protected abstract void SettingsLayer(ILayerManager layer, IContainer container);
 }

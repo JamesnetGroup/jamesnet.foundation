@@ -6,7 +6,7 @@
     <EnableDefaultItems>false</EnableDefaultItems>
     <DefineSilverlight>true</DefineSilverlight>
     <OpenSilverType>7</OpenSilverType>
-    <Version>9.1.4</Version>
+    <Version>9.1.6</Version>
     <Authors>Jaewung Lee, Yang Qu</Authors>
     <Product>Jamesnet.Platform.OpenSilver</Product>
     <Copyright>Copyright © 2025 JamesnetGroup</Copyright>

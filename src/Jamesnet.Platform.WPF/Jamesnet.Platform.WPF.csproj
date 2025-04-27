@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>9.1.4</Version>
+    <Version>9.1.6</Version>
     <Authors>Jaewung Lee, Yang Qu</Authors>
     <Product>Jamesnet.Platform.Wpf</Product>
     <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
