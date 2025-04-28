@@ -79,8 +79,7 @@ namespace Jamesnet.Platform.OpenSilver
         public AnimatedOpenSilverLayer()
         {
             DefaultStyleKey = typeof(AnimatedOpenSilverLayer);
-
-            // 컨테이너 초기화 및 크기 설정
+              
             _containerGrid = new Grid
             {
                 HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -107,14 +106,11 @@ namespace Jamesnet.Platform.OpenSilver
             _containerGrid.Children.Add(_currentContent);
             _containerGrid.Children.Add(_nextContent);
 
-            // 사용자 컨트롤의 Content에 내부 컨테이너 설정
             base.Content = _containerGrid;
 
-            // 사용자 컨트롤 자체의 크기 설정
             this.HorizontalAlignment = HorizontalAlignment.Stretch;
             this.VerticalAlignment = VerticalAlignment.Stretch;
 
-            // LayerManager 등록
             LayerManager.InitializeLayer(this);
         }
 
@@ -131,16 +127,12 @@ namespace Jamesnet.Platform.OpenSilver
         {
             _isAnimating = true;
 
-            // 새 콘텐츠 설정
             _nextContent.Content = newContent;
 
-            // 페이드 애니메이션 생성
             Storyboard storyboard = new Storyboard();
 
-            // 애니메이션에 이징 함수 추가
             CubicEase easing = new CubicEase { EasingMode = EasingMode.EaseInOut };
 
-            // 기존 콘텐츠 페이드 아웃
             DoubleAnimation fadeOutAnimation = new DoubleAnimation
             {
                 From = 1.0,
@@ -152,12 +144,11 @@ namespace Jamesnet.Platform.OpenSilver
             Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath("Opacity"));
             storyboard.Children.Add(fadeOutAnimation);
 
-            // 새 콘텐츠 페이드 인 - 지정된 지연 시간 후 시작
             DoubleAnimation fadeInAnimation = new DoubleAnimation
             {
                 From = 0.0,
                 To = 1.0,
-                BeginTime = FadeInDelay, // 지정된 지연 시간 후 시작
+                BeginTime = FadeInDelay, 
                 Duration = new Duration(FadeInDuration),
                 EasingFunction = easing
             };
@@ -165,7 +156,6 @@ namespace Jamesnet.Platform.OpenSilver
             Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath("Opacity"));
             storyboard.Children.Add(fadeInAnimation);
 
-            // 전체 애니메이션 시간 계산 (페이드인 지연 + 페이드인 지속시간과 페이드아웃 지속시간 중 큰 값)
             TimeSpan totalDuration = TimeSpan.FromTicks(
                 Math.Max(
                     FadeInDelay.Ticks + FadeInDuration.Ticks,
@@ -173,22 +163,18 @@ namespace Jamesnet.Platform.OpenSilver
                 )
             );
 
-            // 애니메이션 완료 후 정리 작업
             storyboard.Completed += (s, e) =>
             {
-                // 콘텐츠 컨트롤 교체
                 ContentControl temp = _currentContent;
                 _currentContent = _nextContent;
                 _nextContent = temp;
 
-                // 새 콘텐츠 컨트롤 초기화
                 _nextContent.Content = null;
                 _nextContent.Opacity = 0;
 
                 _isAnimating = false;
             };
 
-            // 애니메이션 시작
             storyboard.Begin();
         }
     }

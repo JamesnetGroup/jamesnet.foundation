@@ -44,12 +44,10 @@ public class ViewModelBase : INotifyPropertyChanged
         if (property == null)
             return;
 
-        // GetCustomAttributes로 모든 CommandTriggerAttribute를 가져옴
         var attributes = property.GetCustomAttributes<CommandTriggerAttribute>();
         if (!attributes.Any())
             return;
 
-        // 각 attribute에 대해 Command를 찾아서 RaiseCanExecuteChanged 호출
         foreach (var attribute in attributes)
         {
             var commandProperty = GetType().GetProperty(attribute.CommandName);

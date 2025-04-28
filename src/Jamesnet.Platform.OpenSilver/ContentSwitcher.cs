@@ -81,7 +81,7 @@ public class ContentSwitcher : ContentControl
             {
                 binding.ElementName = contentCase.SourceElementName;
                 var element = this.FindName(contentCase.SourceElementName);
-                if (element == null) return;  // 요소가 없으면 바인딩 건너뜀
+                if (element == null) return;  
                 binding.Source = element;
             }
             else if (this.DataContext != null)
