@@ -5,9 +5,15 @@ namespace Jamesnet.Foundation;
 
 public class YamlItem : Dictionary<string, string>
 {
-    public YamlItem() : base() { }
+    public YamlItem() : base()
+    {
+        
+    }
 
-    public YamlItem(IDictionary<string, string> dictionary) : base(dictionary) { }
+    public YamlItem(IDictionary<string, string> dictionary) : base(dictionary) 
+    { 
+    
+    }
 
     public T GetValue<T>(string key)
     {

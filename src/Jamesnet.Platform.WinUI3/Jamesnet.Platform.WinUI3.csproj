@@ -7,7 +7,7 @@
     <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
     <WindowsSdkPackageVersion>10.0.19041.38</WindowsSdkPackageVersion>
-    <Version>9.1.6</Version>
+    <Version>9.1.8</Version>
     <Authors>Jaewung Lee, Yang Qu</Authors>
     <Product>Jamesnet.Platform.WinUI3</Product>
     <Copyright>Copyright © 2025 JamesnetGroup</Copyright>

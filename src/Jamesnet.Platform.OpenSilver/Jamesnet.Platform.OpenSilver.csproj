@@ -6,7 +6,7 @@
     <EnableDefaultItems>false</EnableDefaultItems>
     <DefineSilverlight>true</DefineSilverlight>
     <OpenSilverType>7</OpenSilverType>
-    <Version>9.1.7</Version>
+    <Version>9.1.8</Version>
     <Authors>Jaewung Lee, Yang Qu</Authors>
     <Product>Jamesnet.Platform.OpenSilver</Product>
     <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
@@ -27,6 +27,8 @@
     <Compile Include="IMobileView.cs" />
     <Compile Include="OpenSilverLayer.cs" />
     <Compile Include="ContentSwitcher.cs" />
+    <Compile Include="Responsive\ResponsiveColumns.cs" />
+    <Compile Include="Responsive\ResponsiveVisibility.cs" />
     <Compile Include="Scripts\DeviceInfo.cs" />
   </ItemGroup>
 
