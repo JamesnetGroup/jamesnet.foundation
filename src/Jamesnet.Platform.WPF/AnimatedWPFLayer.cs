@@ -1,8 +1,10 @@
 ﻿using Jamesnet.Foundation;
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 
 namespace Jamesnet.Platform.Wpf
 {
@@ -31,6 +33,9 @@ namespace Jamesnet.Platform.Wpf
         private ContentControl _currentContent;
         private ContentControl _nextContent;
         private bool _isAnimating = false;
+        private Storyboard _currentStoryboard;
+        private UIElement _pendingContent = null;
+        private readonly Queue<UIElement> _requestHistory = new Queue<UIElement>(); // 변경된 콘텐츠 순서 기억
 
         public bool IsRegistered { get; set; }
 
@@ -63,16 +68,37 @@ namespace Jamesnet.Platform.Wpf
             get => _currentContent?.Content;
             set
             {
-                if (_currentContent == null || _isAnimating)
-                    return;
-
-                if (_currentContent.Content == null || _currentContent.Content == value)
+                Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    _currentContent.Content = value;
-                    return;
-                }
+                    if (_currentContent == null)
+                        return;
 
-                AnimateContentChange(value as UIElement);
+                    if (_currentContent.Content == value)
+                    {
+                        _pendingContent = null;
+                        return;
+                    }
+
+                    UIElement newContent = value as UIElement;
+                    if (newContent == null)
+                        return;
+
+                    // 변경된 콘텐츠를 순서대로 기억
+                    _requestHistory.Enqueue(newContent);
+                    _pendingContent = newContent; // 최신 콘텐츠만 애니메이션 처리
+
+                    // 애니메이션 중이면 중단
+                    if (_isAnimating)
+                    {
+                        _currentStoryboard?.Stop();
+                        _currentContent.Opacity = 1;
+                        _nextContent.Content = null;
+                        _nextContent.Opacity = 0;
+                        _isAnimating = false;
+                    }
+
+                    AnimateContentChange(_pendingContent);
+                }), DispatcherPriority.Input);
             }
         }
 
@@ -91,7 +117,8 @@ namespace Jamesnet.Platform.Wpf
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                VerticalContentAlignment = VerticalAlignment.Stretch
+                VerticalContentAlignment = VerticalAlignment.Stretch,
+                Opacity = 1
             };
 
             _nextContent = new ContentControl
@@ -125,12 +152,18 @@ namespace Jamesnet.Platform.Wpf
 
         private void AnimateContentChange(UIElement newContent)
         {
-            _isAnimating = true;
+            if (newContent == null)
+            {
+                _isAnimating = false;
+                _pendingContent = null;
+                VerifyFinalContent(); // 마지막 체크
+                return;
+            }
 
+            _isAnimating = true;
             _nextContent.Content = newContent;
 
-            Storyboard storyboard = new Storyboard();
-
+            _currentStoryboard = new Storyboard();
             CubicEase easing = new CubicEase { EasingMode = EasingMode.EaseInOut };
 
             DoubleAnimation fadeOutAnimation = new DoubleAnimation
@@ -142,28 +175,21 @@ namespace Jamesnet.Platform.Wpf
             };
             Storyboard.SetTarget(fadeOutAnimation, _currentContent);
             Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath("Opacity"));
-            storyboard.Children.Add(fadeOutAnimation);
+            _currentStoryboard.Children.Add(fadeOutAnimation);
 
             DoubleAnimation fadeInAnimation = new DoubleAnimation
             {
                 From = 0.0,
                 To = 1.0,
-                BeginTime = FadeInDelay, 
+                BeginTime = FadeInDelay,
                 Duration = new Duration(FadeInDuration),
                 EasingFunction = easing
             };
             Storyboard.SetTarget(fadeInAnimation, _nextContent);
             Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath("Opacity"));
-            storyboard.Children.Add(fadeInAnimation);
+            _currentStoryboard.Children.Add(fadeInAnimation);
 
-            TimeSpan totalDuration = TimeSpan.FromTicks(
-                Math.Max(
-                    FadeInDelay.Ticks + FadeInDuration.Ticks,
-                    FadeOutDuration.Ticks
-                )
-            );
-
-            storyboard.Completed += (s, e) =>
+            _currentStoryboard.Completed += (s, e) =>
             {
                 ContentControl temp = _currentContent;
                 _currentContent = _nextContent;
@@ -171,11 +197,52 @@ namespace Jamesnet.Platform.Wpf
 
                 _nextContent.Content = null;
                 _nextContent.Opacity = 0;
+                _currentContent.Opacity = 1;
 
                 _isAnimating = false;
+                _currentStoryboard = null;
+
+                // _pendingContent가 있으면 계속 처리
+                if (_pendingContent != null && _pendingContent != newContent)
+                {
+                    var nextContent = _pendingContent;
+                    _pendingContent = null;
+                    AnimateContentChange(nextContent);
+                }
+                else
+                {
+                    _pendingContent = null;
+                    VerifyFinalContent(); // 마지막 체크
+                }
             };
 
-            storyboard.Begin();
+            _currentStoryboard.Begin();
+        }
+
+        private void VerifyFinalContent()
+        {
+            if (_requestHistory.Count == 0)
+                return;
+
+            // 큐에서 마지막 요청 콘텐츠 가져오기
+            UIElement lastRequestedContent = null;
+            while (_requestHistory.Count > 0)
+            {
+                lastRequestedContent = _requestHistory.Dequeue();
+            }
+
+            // 최종 표시된 콘텐츠와 비교
+            if (_currentContent.Content != lastRequestedContent)
+            {
+                Console.WriteLine($"Mismatch detected! Last requested: {lastRequestedContent}, Displayed: {_currentContent.Content}");
+                // 불일치 시 마지막 콘텐츠로 강제 업데이트
+                _pendingContent = lastRequestedContent;
+                AnimateContentChange(_pendingContent);
+            }
+            else
+            {
+                Console.WriteLine("Final content matches the last request.");
+            }
         }
     }
 }

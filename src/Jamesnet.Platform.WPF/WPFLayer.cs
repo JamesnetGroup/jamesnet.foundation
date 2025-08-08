@@ -34,6 +34,8 @@ public class WPFLayer : ContentControl, ILayer
     {
         if (d is WPFLayer layer)
         {
+            if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(layer)) return;
+
             layer.IsRegistered = false;
             LayerManager.RegisterToLayerManager(layer);
         }

@@ -49,7 +49,7 @@ namespace Jamesnet.Platform.OpenSilver.Responsive
             if (windowWidth <= breakpoint)
             {
                 if (!double.IsNaN(mobileWidth))
-                    element.Width = mobileWidth;
+                    element.Width = mobileWidth; 
                 else
                     element.ClearValue(FrameworkElement.WidthProperty);
             }

@@ -1,5 +1,6 @@
 ﻿using Jamesnet.Foundation;
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
@@ -31,6 +32,9 @@ namespace Jamesnet.Platform.OpenSilver
         private ContentControl _currentContent;
         private ContentControl _nextContent;
         private bool _isAnimating = false;
+        private Storyboard _currentStoryboard;
+        private UIElement _pendingContent = null;
+        private readonly Queue<UIElement> _requestHistory = new Queue<UIElement>();
 
         public bool IsRegistered { get; set; }
 
@@ -63,23 +67,39 @@ namespace Jamesnet.Platform.OpenSilver
             get => _currentContent?.Content;
             set
             {
-                if (_currentContent == null || _isAnimating)
+                if (_currentContent == null)
                     return;
 
-                if (_currentContent.Content == null || _currentContent.Content == value)
+                if (_currentContent.Content == value)
                 {
-                    _currentContent.Content = value;
+                    _pendingContent = null;
                     return;
                 }
 
-                AnimateContentChange(value as UIElement);
+                UIElement newContent = value as UIElement;
+                if (newContent == null)
+                    return;
+
+                _requestHistory.Enqueue(newContent);
+                _pendingContent = newContent;
+
+                if (_isAnimating)
+                {
+                    _currentStoryboard?.Stop();
+                    _currentContent.Opacity = 1;
+                    _nextContent.Content = null;
+                    _nextContent.Opacity = 0;
+                    _isAnimating = false;
+                }
+
+                AnimateContentChange(_pendingContent);
             }
         }
 
         public AnimatedOpenSilverLayer()
         {
             DefaultStyleKey = typeof(AnimatedOpenSilverLayer);
-              
+
             _containerGrid = new Grid
             {
                 HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -91,7 +111,8 @@ namespace Jamesnet.Platform.OpenSilver
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                VerticalContentAlignment = VerticalAlignment.Stretch
+                VerticalContentAlignment = VerticalAlignment.Stretch,
+                Opacity = 1
             };
 
             _nextContent = new ContentControl
@@ -125,12 +146,18 @@ namespace Jamesnet.Platform.OpenSilver
 
         private void AnimateContentChange(UIElement newContent)
         {
-            _isAnimating = true;
+            if (newContent == null)
+            {
+                _isAnimating = false;
+                _pendingContent = null;
+                VerifyFinalContent();
+                return;
+            }
 
+            _isAnimating = true;
             _nextContent.Content = newContent;
 
-            Storyboard storyboard = new Storyboard();
-
+            _currentStoryboard = new Storyboard();
             CubicEase easing = new CubicEase { EasingMode = EasingMode.EaseInOut };
 
             DoubleAnimation fadeOutAnimation = new DoubleAnimation
@@ -142,28 +169,21 @@ namespace Jamesnet.Platform.OpenSilver
             };
             Storyboard.SetTarget(fadeOutAnimation, _currentContent);
             Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath("Opacity"));
-            storyboard.Children.Add(fadeOutAnimation);
+            _currentStoryboard.Children.Add(fadeOutAnimation);
 
             DoubleAnimation fadeInAnimation = new DoubleAnimation
             {
                 From = 0.0,
                 To = 1.0,
-                BeginTime = FadeInDelay, 
+                BeginTime = FadeInDelay,
                 Duration = new Duration(FadeInDuration),
                 EasingFunction = easing
             };
             Storyboard.SetTarget(fadeInAnimation, _nextContent);
             Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath("Opacity"));
-            storyboard.Children.Add(fadeInAnimation);
+            _currentStoryboard.Children.Add(fadeInAnimation);
 
-            TimeSpan totalDuration = TimeSpan.FromTicks(
-                Math.Max(
-                    FadeInDelay.Ticks + FadeInDuration.Ticks,
-                    FadeOutDuration.Ticks
-                )
-            );
-
-            storyboard.Completed += (s, e) =>
+            _currentStoryboard.Completed += (s, e) =>
             {
                 ContentControl temp = _currentContent;
                 _currentContent = _nextContent;
@@ -171,11 +191,43 @@ namespace Jamesnet.Platform.OpenSilver
 
                 _nextContent.Content = null;
                 _nextContent.Opacity = 0;
+                _currentContent.Opacity = 1;
 
                 _isAnimating = false;
+                _currentStoryboard = null;
+
+                if (_pendingContent != null && _pendingContent != newContent)
+                {
+                    var nextContent = _pendingContent;
+                    _pendingContent = null;
+                    AnimateContentChange(nextContent);
+                }
+                else
+                {
+                    _pendingContent = null;
+                    VerifyFinalContent();
+                }
             };
 
-            storyboard.Begin();
+            _currentStoryboard.Begin();
+        }
+
+        private void VerifyFinalContent()
+        {
+            if (_requestHistory.Count == 0)
+                return;
+
+            UIElement lastRequestedContent = null;
+            while (_requestHistory.Count > 0)
+            {
+                lastRequestedContent = _requestHistory.Dequeue();
+            }
+
+            if (_currentContent.Content != lastRequestedContent)
+            {
+                _pendingContent = lastRequestedContent;
+                AnimateContentChange(_pendingContent);
+            }
         }
     }
 }
