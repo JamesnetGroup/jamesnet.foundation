@@ -45,7 +45,7 @@ namespace Jamesnet.Platform.OpenSilver.Responsive
 
         private static void UpdateBorderThickness(DependencyObject element)
         {
-            double windowWidth = Window.Current.Bounds.Width; // Breakpoint 비교를 위해 너비 사용
+            double windowWidth = Window.Current.Bounds.Width;
             double breakpoint = GetBreakpoint(element);
             Thickness defaultBorderThickness = GetDesktop(element);
             Thickness mobileBorderThickness = GetMobile(element);

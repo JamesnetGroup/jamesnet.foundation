@@ -7,16 +7,6 @@ using System.Runtime.CompilerServices;
 
 namespace Jamesnet.Foundation;
 
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-public class CommandTriggerAttribute : Attribute
-{
-    public string CommandName { get; }
-    public CommandTriggerAttribute(string commandName)
-    {
-        CommandName = commandName;
-    }
-}
-
 public class ViewModelBase : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler PropertyChanged;

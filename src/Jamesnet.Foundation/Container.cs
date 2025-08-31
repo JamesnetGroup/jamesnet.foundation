@@ -8,8 +8,6 @@ public class Container : IContainer
 {
     private readonly Dictionary<(Type, string), Func<object>> _registrations = new Dictionary<(Type, string), Func<object>>();
 
-    #region Registration Methods
-
     public void Register<TInterface, TImplementation>() where TImplementation : TInterface
     {
         Register<TInterface, TImplementation>(null);
@@ -46,10 +44,6 @@ public class Container : IContainer
     {
         _registrations[(typeof(TInterface), name)] = () => instance;
     }
-
-    #endregion
-
-    #region Resolution Methods
 
     public T Resolve<T>()
     {
@@ -100,10 +94,6 @@ public class Container : IContainer
         return false;
     }
 
-    #endregion
-
-    #region Helper Methods
-
     private object CreateInstance(Type type)
     {
         var constructors = type.GetConstructors();
@@ -150,6 +140,4 @@ public class Container : IContainer
 
         return instance;
     }
-
-    #endregion
 }

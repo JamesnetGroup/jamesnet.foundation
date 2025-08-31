@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>10</LangVersion>
+    <LangVersion>12</LangVersion>
     <Nullable>disable</Nullable>
-    <Version>9.1.12</Version>
+    <Version>9.1.13</Version>
     <Authors>Jaewung Lee, Yang Qu</Authors>
     <Product>Jamesnet.Foundation</Product>
     <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
