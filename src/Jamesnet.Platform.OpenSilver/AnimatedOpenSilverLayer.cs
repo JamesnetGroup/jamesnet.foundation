@@ -33,7 +33,6 @@ namespace Jamesnet.Platform.OpenSilver
         private ContentControl _nextContent;
         private bool _isAnimating = false;
         private Storyboard _currentStoryboard;
-        private UIElement _pendingContent = null;
         private readonly Queue<UIElement> _requestHistory = new Queue<UIElement>();
 
         public bool IsRegistered { get; set; }
@@ -70,29 +69,17 @@ namespace Jamesnet.Platform.OpenSilver
                 if (_currentContent == null)
                     return;
 
-                if (_currentContent.Content == value)
-                {
-                    _pendingContent = null;
-                    return;
-                }
-
                 UIElement newContent = value as UIElement;
                 if (newContent == null)
                     return;
 
-                _requestHistory.Enqueue(newContent);
-                _pendingContent = newContent;
-
-                if (_isAnimating)
+                if (_currentContent.Content == newContent)
                 {
-                    _currentStoryboard?.Stop();
-                    _currentContent.Opacity = 1;
-                    _nextContent.Content = null;
-                    _nextContent.Opacity = 0;
-                    _isAnimating = false;
+                    return;
                 }
 
-                AnimateContentChange(_pendingContent);
+                _requestHistory.Enqueue(newContent);
+                TryStartNextAnimation();
             }
         }
 
@@ -144,13 +131,35 @@ namespace Jamesnet.Platform.OpenSilver
             }
         }
 
+        private void TryStartNextAnimation()
+        {
+            if (_isAnimating)
+            {
+                return;
+            }
+
+            if (_requestHistory.Count == 0)
+            {
+                return;
+            }
+
+            UIElement nextContent = _requestHistory.Dequeue();
+
+            if (_currentContent.Content == nextContent)
+            {
+                TryStartNextAnimation();
+                return;
+            }
+
+            AnimateContentChange(nextContent);
+        }
+
         private void AnimateContentChange(UIElement newContent)
         {
             if (newContent == null)
             {
                 _isAnimating = false;
-                _pendingContent = null;
-                VerifyFinalContent();
+                TryStartNextAnimation();
                 return;
             }
 
@@ -196,38 +205,10 @@ namespace Jamesnet.Platform.OpenSilver
                 _isAnimating = false;
                 _currentStoryboard = null;
 
-                if (_pendingContent != null && _pendingContent != newContent)
-                {
-                    var nextContent = _pendingContent;
-                    _pendingContent = null;
-                    AnimateContentChange(nextContent);
-                }
-                else
-                {
-                    _pendingContent = null;
-                    VerifyFinalContent();
-                }
+                TryStartNextAnimation();
             };
 
             _currentStoryboard.Begin();
-        }
-
-        private void VerifyFinalContent()
-        {
-            if (_requestHistory.Count == 0)
-                return;
-
-            UIElement lastRequestedContent = null;
-            while (_requestHistory.Count > 0)
-            {
-                lastRequestedContent = _requestHistory.Dequeue();
-            }
-
-            if (_currentContent.Content != lastRequestedContent)
-            {
-                _pendingContent = lastRequestedContent;
-                AnimateContentChange(_pendingContent);
-            }
         }
     }
 }
