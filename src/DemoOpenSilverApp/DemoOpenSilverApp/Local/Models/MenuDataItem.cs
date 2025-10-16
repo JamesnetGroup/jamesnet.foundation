@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DemoOpenSilverApp.Local.Models
+﻿namespace DemoOpenSilverApp.Local.Models
 {
     public class MenuDataItem
     {

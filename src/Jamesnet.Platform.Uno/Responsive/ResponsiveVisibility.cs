@@ -1,6 +1,4 @@
-﻿using System.Windows;
-
-namespace Jamesnet.Platform.Uno.Responsive;
+﻿namespace Jamesnet.Platform.Uno.Responsive;
 
 public static class ResponsiveVisibility
 {

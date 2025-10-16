@@ -31,7 +31,6 @@ namespace Jamesnet.Platform.OpenSilver.Responsive
         {
             if (d is UniformGrid grid)
             {
-                // 이벤트 핸들러 등록 (중복 방지)
                 if (!IsHandlerRegistered(grid))
                 {
                     grid.SizeChanged += (s, args) => UpdateColumns(grid);

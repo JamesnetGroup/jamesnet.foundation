@@ -1,6 +1,4 @@
 ﻿using Jamesnet.Foundation;
-using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
@@ -35,7 +33,7 @@ namespace Jamesnet.Platform.Wpf
         private bool _isAnimating = false;
         private Storyboard _currentStoryboard;
         private UIElement _pendingContent = null;
-        private readonly Queue<UIElement> _requestHistory = new Queue<UIElement>(); // 변경된 콘텐츠 순서 기억
+        private readonly Queue<UIElement> _requestHistory = new Queue<UIElement>(); 
 
         public bool IsRegistered { get; set; }
 
@@ -83,11 +81,9 @@ namespace Jamesnet.Platform.Wpf
                     if (newContent == null)
                         return;
 
-                    // 변경된 콘텐츠를 순서대로 기억
                     _requestHistory.Enqueue(newContent);
-                    _pendingContent = newContent; // 최신 콘텐츠만 애니메이션 처리
+                    _pendingContent = newContent;
 
-                    // 애니메이션 중이면 중단
                     if (_isAnimating)
                     {
                         _currentStoryboard?.Stop();
@@ -156,7 +152,7 @@ namespace Jamesnet.Platform.Wpf
             {
                 _isAnimating = false;
                 _pendingContent = null;
-                VerifyFinalContent(); // 마지막 체크
+                VerifyFinalContent(); 
                 return;
             }
 
@@ -202,7 +198,6 @@ namespace Jamesnet.Platform.Wpf
                 _isAnimating = false;
                 _currentStoryboard = null;
 
-                // _pendingContent가 있으면 계속 처리
                 if (_pendingContent != null && _pendingContent != newContent)
                 {
                     var nextContent = _pendingContent;
@@ -212,7 +207,7 @@ namespace Jamesnet.Platform.Wpf
                 else
                 {
                     _pendingContent = null;
-                    VerifyFinalContent(); // 마지막 체크
+                    VerifyFinalContent(); 
                 }
             };
 
@@ -224,18 +219,15 @@ namespace Jamesnet.Platform.Wpf
             if (_requestHistory.Count == 0)
                 return;
 
-            // 큐에서 마지막 요청 콘텐츠 가져오기
             UIElement lastRequestedContent = null;
             while (_requestHistory.Count > 0)
             {
                 lastRequestedContent = _requestHistory.Dequeue();
             }
 
-            // 최종 표시된 콘텐츠와 비교
             if (_currentContent.Content != lastRequestedContent)
             {
                 Console.WriteLine($"Mismatch detected! Last requested: {lastRequestedContent}, Displayed: {_currentContent.Content}");
-                // 불일치 시 마지막 콘텐츠로 강제 업데이트
                 _pendingContent = lastRequestedContent;
                 AnimateContentChange(_pendingContent);
             }

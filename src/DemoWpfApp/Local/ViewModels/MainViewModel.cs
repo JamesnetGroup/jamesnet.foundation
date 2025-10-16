@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Input;
-using DemoWpfApp.Local.Models;
+﻿using DemoWpfApp.Local.Models;
 using Jamesnet.Foundation;
 
 namespace DemoWpfApp.Local.ViewModels

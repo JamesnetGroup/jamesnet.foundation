@@ -1,7 +1,6 @@
 using Jamesnet.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System;
 
 namespace Jamesnet.Platform.WinUI3
 {

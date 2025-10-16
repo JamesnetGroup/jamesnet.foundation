@@ -1,5 +1,4 @@
 ﻿using Microsoft.UI.Xaml;
-using System.Windows;
 
 namespace Jamesnet.Platform.OpenSilver.Responsive;
 
