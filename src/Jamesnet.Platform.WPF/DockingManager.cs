@@ -75,15 +75,41 @@ public class DockingManager : ContentControl
     {
         if (_rootGrid == null) return;
 
-        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
-        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) });
-        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) });
-        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
+        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) }); // 0: Left Panel
+        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) }); // 1: Splitter (L)
+        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // 2: Center
+        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) }); // 3: Splitter (R)
+        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) }); // 4: Right Panel
 
         _rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0) });
         _rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0) });
+
+        var leftSplitter = new GridSplitter
+        {
+            Width = 4,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            Background = Brushes.Transparent,
+            ResizeBehavior = GridResizeBehavior.PreviousAndNext
+        };
+        Grid.SetColumn(leftSplitter, 1);
+        Grid.SetRow(leftSplitter, 0);
+        Grid.SetRowSpan(leftSplitter, 3); 
+        _rootGrid.Children.Add(leftSplitter);
+
+        var rightSplitter = new GridSplitter
+        {
+            Width = 4,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            Background = Brushes.Transparent,
+            ResizeBehavior = GridResizeBehavior.PreviousAndNext
+        };
+        Grid.SetColumn(rightSplitter, 3);
+        Grid.SetRow(rightSplitter, 0);
+        Grid.SetRowSpan(rightSplitter, 3);
+        _rootGrid.Children.Add(rightSplitter);
     }
 
     private void InitializePreview()
@@ -113,11 +139,21 @@ public class DockingManager : ContentControl
     {
         if (_rootGrid == null) return;
 
-        if (content is DockingPanel panel)
+        var panel = content as DockingPanel;
+        if (panel != null)
         {
             panel.DockPosition = position;
             panel.IsFloating = false;
             panel.ResetManagerCache();
+        }
+
+        if (_dockedPanels.TryGetValue(position, out var existingControl))
+        {
+            if (position == DockPosition.Center && panel != null)
+            {
+                DockAsTab(existingControl, panel);
+                return;
+            }
         }
 
         _dockedPanels[position] = content;
@@ -161,7 +197,11 @@ public class DockingManager : ContentControl
         bool hasBottom = _dockedPanels.ContainsKey(DockPosition.Bottom);
 
         _rootGrid.ColumnDefinitions[0].Width = hasLeft ? new GridLength(LeftPanelWidth) : new GridLength(0);
+        _rootGrid.ColumnDefinitions[1].Width = hasLeft ? new GridLength(4) : new GridLength(0); // Left Splitter
+
         _rootGrid.ColumnDefinitions[4].Width = hasRight ? new GridLength(RightPanelWidth) : new GridLength(0);
+        _rootGrid.ColumnDefinitions[3].Width = hasRight ? new GridLength(4) : new GridLength(0); // Right Splitter
+
         _rootGrid.RowDefinitions[0].Height = hasTop ? new GridLength(TopPanelHeight) : new GridLength(0);
         _rootGrid.RowDefinitions[2].Height = hasBottom ? new GridLength(BottomPanelHeight) : new GridLength(0);
     }
