@@ -1,4 +1,5 @@
 ﻿using Jamesnet.Foundation;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -20,6 +21,14 @@ namespace Jamesnet.Platform.Wpf
             DependencyProperty.Register(nameof(IsFloating), typeof(bool), typeof(DockingPanel),
                 new PropertyMetadata(false));
 
+        public static readonly DependencyProperty TabPlacementProperty =
+            DependencyProperty.Register(nameof(TabPlacement), typeof(Dock), typeof(DockingPanel),
+                new PropertyMetadata(Dock.Bottom));
+
+        public static readonly DependencyProperty IsHeaderVisibleProperty =
+            DependencyProperty.Register(nameof(IsHeaderVisible), typeof(bool), typeof(DockingPanel),
+                new PropertyMetadata(true, OnIsHeaderVisibleChanged));
+
         public string Header
         {
             get => (string)GetValue(HeaderProperty);
@@ -38,11 +47,24 @@ namespace Jamesnet.Platform.Wpf
             set => SetValue(IsFloatingProperty, value);
         }
 
+        public Dock TabPlacement
+        {
+            get => (Dock)GetValue(TabPlacementProperty);
+            set => SetValue(TabPlacementProperty, value);
+        }
+
+        public bool IsHeaderVisible
+        {
+            get => (bool)GetValue(IsHeaderVisibleProperty);
+            set => SetValue(IsHeaderVisibleProperty, value);
+        }
+
         private bool _isDragging;
         private Point _dragStartPoint;
         private Point _dragStartScreenPoint;
         private bool _hasDetached;
         private DockingManager _manager;
+        private FrameworkElement _headerElement;
 
         private const double DetachThreshold = 20.0;
 
@@ -56,11 +78,29 @@ namespace Jamesnet.Platform.Wpf
         {
             base.OnApplyTemplate();
 
-            if (GetTemplateChild("PART_Header") is Border headerBorder)
+            _headerElement = GetTemplateChild("PART_Header") as FrameworkElement;
+            if (_headerElement != null)
             {
-                headerBorder.MouseLeftButtonDown += OnHeaderMouseLeftButtonDown;
-                headerBorder.MouseMove += OnHeaderMouseMove;
-                headerBorder.MouseLeftButtonUp += OnHeaderMouseLeftButtonUp;
+                _headerElement.MouseLeftButtonDown += OnHeaderMouseLeftButtonDown;
+                _headerElement.MouseMove += OnHeaderMouseMove;
+                _headerElement.MouseLeftButtonUp += OnHeaderMouseLeftButtonUp;
+                UpdateHeaderVisibility();
+            }
+        }
+
+        private static void OnIsHeaderVisibleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is DockingPanel panel)
+            {
+                panel.UpdateHeaderVisibility();
+            }
+        }
+
+        private void UpdateHeaderVisibility()
+        {
+            if (_headerElement != null)
+            {
+                _headerElement.Visibility = IsHeaderVisible ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
@@ -97,8 +137,6 @@ namespace Jamesnet.Platform.Wpf
             manager.BeginDrag(this, _dragStartPoint);
         }
 
-        // DockingPanel.cs
-
         private void OnHeaderMouseMove(object sender, MouseEventArgs e)
         {
             if (!_isDragging || IsFloating) return;
@@ -117,7 +155,6 @@ namespace Jamesnet.Platform.Wpf
                 _isDragging = false;
 
                 var relativePoint = e.GetPosition(this);
-
                 manager.DetachPanel(this, currentScreenPoint, relativePoint);
                 return;
             }
@@ -147,5 +184,4 @@ namespace Jamesnet.Platform.Wpf
             _manager = null;
         }
     }
-
 }

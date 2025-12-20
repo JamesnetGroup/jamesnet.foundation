@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Input;
 
 namespace Jamesnet.Platform.Wpf;
 
@@ -19,7 +18,8 @@ public class DockingManager : ContentControl
     private DockingCompass _compass;
     private DockingPanel _targetDockPanel;
     private DockingPanel _draggingPanel;
-    private DockPosition _previewPosition;
+    private Point _tabDragStartPoint;
+    private bool _isTabDragging;
 
     private readonly Dictionary<DockPosition, FrameworkElement> _dockedPanels = new();
     private readonly List<FloatingWindow> _floatingWindows = new();
@@ -33,31 +33,14 @@ public class DockingManager : ContentControl
     public static readonly DependencyProperty BottomPanelHeightProperty =
         DependencyProperty.Register(nameof(BottomPanelHeight), typeof(double), typeof(DockingManager), new PropertyMetadata(150.0));
 
-    public double LeftPanelWidth
-    {
-        get => (double)GetValue(LeftPanelWidthProperty);
-        set => SetValue(LeftPanelWidthProperty, value);
-    }
-    public double RightPanelWidth
-    {
-        get => (double)GetValue(RightPanelWidthProperty);
-        set => SetValue(RightPanelWidthProperty, value);
-    }
-    public double TopPanelHeight
-    {
-        get => (double)GetValue(TopPanelHeightProperty);
-        set => SetValue(TopPanelHeightProperty, value);
-    }
-    public double BottomPanelHeight
-    {
-        get => (double)GetValue(BottomPanelHeightProperty);
-        set => SetValue(BottomPanelHeightProperty, value);
-    }
+    public double LeftPanelWidth { get => (double)GetValue(LeftPanelWidthProperty); set => SetValue(LeftPanelWidthProperty, value); }
+    public double RightPanelWidth { get => (double)GetValue(RightPanelWidthProperty); set => SetValue(RightPanelWidthProperty, value); }
+    public double TopPanelHeight { get => (double)GetValue(TopPanelHeightProperty); set => SetValue(TopPanelHeightProperty, value); }
+    public double BottomPanelHeight { get => (double)GetValue(BottomPanelHeightProperty); set => SetValue(BottomPanelHeightProperty, value); }
 
     static DockingManager()
     {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(DockingManager),
-            new FrameworkPropertyMetadata(typeof(DockingManager)));
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(DockingManager), new FrameworkPropertyMetadata(typeof(DockingManager)));
     }
 
     public override void OnApplyTemplate()
@@ -65,7 +48,6 @@ public class DockingManager : ContentControl
         base.OnApplyTemplate();
         _rootGrid = GetTemplateChild("PART_RootGrid") as Grid;
         _overlayCanvas = GetTemplateChild("PART_OverlayCanvas") as Canvas;
-
         InitializeGrid();
         InitializePreview();
         InitializeCompass();
@@ -74,88 +56,45 @@ public class DockingManager : ContentControl
     private void InitializeGrid()
     {
         if (_rootGrid == null) return;
-
-        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) }); // 0: Left Panel
-        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) }); // 1: Splitter (L)
-        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // 2: Center
-        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) }); // 3: Splitter (R)
-        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) }); // 4: Right Panel
-
+        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
+        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) });
+        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) });
+        _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
         _rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0) });
         _rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0) });
 
-        var leftSplitter = new GridSplitter
-        {
-            Width = 4,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Stretch,
-            Background = Brushes.Transparent,
-            ResizeBehavior = GridResizeBehavior.PreviousAndNext
-        };
-        Grid.SetColumn(leftSplitter, 1);
-        Grid.SetRow(leftSplitter, 0);
-        Grid.SetRowSpan(leftSplitter, 3); 
+        var leftSplitter = CreateSplitter(1, 0, 3, true);
+        var rightSplitter = CreateSplitter(3, 0, 3, true);
         _rootGrid.Children.Add(leftSplitter);
-
-        var rightSplitter = new GridSplitter
-        {
-            Width = 4,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Stretch,
-            Background = Brushes.Transparent,
-            ResizeBehavior = GridResizeBehavior.PreviousAndNext
-        };
-        Grid.SetColumn(rightSplitter, 3);
-        Grid.SetRow(rightSplitter, 0);
-        Grid.SetRowSpan(rightSplitter, 3);
         _rootGrid.Children.Add(rightSplitter);
+    }
+
+    private GridSplitter CreateSplitter(int col, int row, int rowSpan, bool isVertical)
+    {
+        var splitter = new GridSplitter { Width = isVertical ? 4 : double.NaN, Height = isVertical ? double.NaN : 4, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Background = Brushes.Transparent, ResizeBehavior = GridResizeBehavior.PreviousAndNext };
+        Grid.SetColumn(splitter, col); Grid.SetRow(splitter, row); Grid.SetRowSpan(splitter, rowSpan);
+        return splitter;
     }
 
     private void InitializePreview()
     {
-        _dockPreview = new Rectangle
-        {
-            Fill = new SolidColorBrush(Color.FromArgb(80, 0, 122, 204)),
-            Stroke = new SolidColorBrush(Color.FromRgb(0, 122, 204)),
-            StrokeThickness = 2,
-            Visibility = Visibility.Collapsed,
-            IsHitTestVisible = false
-        };
+        _dockPreview = new Rectangle { Fill = new SolidColorBrush(Color.FromArgb(80, 0, 122, 204)), Stroke = new SolidColorBrush(Color.FromRgb(0, 122, 204)), StrokeThickness = 2, Visibility = Visibility.Collapsed, IsHitTestVisible = false };
         _overlayCanvas?.Children.Add(_dockPreview);
     }
 
     private void InitializeCompass()
     {
-        _compass = new DockingCompass
-        {
-            Visibility = Visibility.Collapsed,
-            IsHitTestVisible = true
-        };
+        _compass = new DockingCompass { Visibility = Visibility.Collapsed, IsHitTestVisible = true };
         _overlayCanvas?.Children.Add(_compass);
     }
 
     public void AddPanel(FrameworkElement content, DockPosition position)
     {
         if (_rootGrid == null) return;
-
-        var panel = content as DockingPanel;
-        if (panel != null)
-        {
-            panel.DockPosition = position;
-            panel.IsFloating = false;
-            panel.ResetManagerCache();
-        }
-
-        if (_dockedPanels.TryGetValue(position, out var existingControl))
-        {
-            if (position == DockPosition.Center && panel != null)
-            {
-                DockAsTab(existingControl, panel);
-                return;
-            }
-        }
-
+        if (content is DockingPanel panel) { panel.DockPosition = position; panel.IsFloating = false; panel.ResetManagerCache(); }
+        if (_dockedPanels.TryGetValue(position, out var existingControl) && position == DockPosition.Center && content is DockingPanel p) { DockAsTab(existingControl, p); return; }
         _dockedPanels[position] = content;
         SetPanelGridPosition(content, position);
         _rootGrid.Children.Add(content);
@@ -164,707 +103,197 @@ public class DockingManager : ContentControl
 
     private void SetPanelGridPosition(FrameworkElement element, DockPosition position)
     {
-        Grid.SetColumnSpan(element, 1);
-        Grid.SetRowSpan(element, 1);
-
+        Grid.SetColumnSpan(element, 1); Grid.SetRowSpan(element, 1);
         switch (position)
         {
-            case DockPosition.Left:
-                Grid.SetColumn(element, 0); Grid.SetRow(element, 0); Grid.SetRowSpan(element, 3);
-                break;
-            case DockPosition.Right:
-                Grid.SetColumn(element, 4); Grid.SetRow(element, 0); Grid.SetRowSpan(element, 3);
-                break;
-            case DockPosition.Top:
-                Grid.SetColumn(element, 2); Grid.SetRow(element, 0);
-                break;
-            case DockPosition.Bottom:
-                Grid.SetColumn(element, 2); Grid.SetRow(element, 2);
-                break;
-            case DockPosition.Center:
-                Grid.SetColumn(element, 2); Grid.SetRow(element, 1);
-                break;
+            case DockPosition.Left: Grid.SetColumn(element, 0); Grid.SetRow(element, 0); Grid.SetRowSpan(element, 3); break;
+            case DockPosition.Right: Grid.SetColumn(element, 4); Grid.SetRow(element, 0); Grid.SetRowSpan(element, 3); break;
+            case DockPosition.Top: Grid.SetColumn(element, 2); Grid.SetRow(element, 0); break;
+            case DockPosition.Bottom: Grid.SetColumn(element, 2); Grid.SetRow(element, 2); break;
+            case DockPosition.Center: Grid.SetColumn(element, 2); Grid.SetRow(element, 1); break;
         }
     }
 
     private void UpdateGridSizes()
     {
         if (_rootGrid == null) return;
-
-        bool hasLeft = _dockedPanels.ContainsKey(DockPosition.Left);
-        bool hasRight = _dockedPanels.ContainsKey(DockPosition.Right);
-        bool hasTop = _dockedPanels.ContainsKey(DockPosition.Top);
-        bool hasBottom = _dockedPanels.ContainsKey(DockPosition.Bottom);
-
-        _rootGrid.ColumnDefinitions[0].Width = hasLeft ? new GridLength(LeftPanelWidth) : new GridLength(0);
-        _rootGrid.ColumnDefinitions[1].Width = hasLeft ? new GridLength(4) : new GridLength(0); // Left Splitter
-
-        _rootGrid.ColumnDefinitions[4].Width = hasRight ? new GridLength(RightPanelWidth) : new GridLength(0);
-        _rootGrid.ColumnDefinitions[3].Width = hasRight ? new GridLength(4) : new GridLength(0); // Right Splitter
-
-        _rootGrid.RowDefinitions[0].Height = hasTop ? new GridLength(TopPanelHeight) : new GridLength(0);
-        _rootGrid.RowDefinitions[2].Height = hasBottom ? new GridLength(BottomPanelHeight) : new GridLength(0);
+        _rootGrid.ColumnDefinitions[0].Width = _dockedPanels.ContainsKey(DockPosition.Left) ? new GridLength(LeftPanelWidth) : new GridLength(0);
+        _rootGrid.ColumnDefinitions[1].Width = _dockedPanels.ContainsKey(DockPosition.Left) ? new GridLength(4) : new GridLength(0);
+        _rootGrid.ColumnDefinitions[4].Width = _dockedPanels.ContainsKey(DockPosition.Right) ? new GridLength(RightPanelWidth) : new GridLength(0);
+        _rootGrid.ColumnDefinitions[3].Width = _dockedPanels.ContainsKey(DockPosition.Right) ? new GridLength(4) : new GridLength(0);
+        _rootGrid.RowDefinitions[0].Height = _dockedPanels.ContainsKey(DockPosition.Top) ? new GridLength(TopPanelHeight) : new GridLength(0);
+        _rootGrid.RowDefinitions[2].Height = _dockedPanels.ContainsKey(DockPosition.Bottom) ? new GridLength(BottomPanelHeight) : new GridLength(0);
     }
 
-    public void BeginDrag(DockingPanel panel, Point position)
-    {
-        _draggingPanel = panel;
-        ShowDockPreview(true);
-        UpdateDrag(position);
-    }
-
-    public void UpdateDrag(Point position)
-    {
-        if (_draggingPanel == null || _overlayCanvas == null) return;
-        UpdateDockPreviewFromScreen(PointToScreen(position));
-    }
-
-    public void EndDrag(Point position)
-    {
-        if (_draggingPanel == null) return;
-        ShowDockPreview(false);
-        _draggingPanel = null;
-        if (_compass != null)
-            _compass.Visibility = Visibility.Collapsed;
-    }
+    public void BeginDrag(DockingPanel panel, Point position) { _draggingPanel = panel; ShowDockPreview(true); UpdateDrag(position); }
+    public void UpdateDrag(Point position) { if (_draggingPanel == null || _overlayCanvas == null) return; UpdateDockPreviewFromScreen(PointToScreen(position)); }
+    public void EndDrag(Point position) { if (_draggingPanel == null) return; ShowDockPreview(false); _draggingPanel = null; if (_compass != null) _compass.Visibility = Visibility.Collapsed; }
 
     public void DetachPanel(DockingPanel panel, Point screenPoint, Point dragOffset)
     {
         var oldPosition = panel.DockPosition;
         var parent = panel.Parent;
 
-        // 1. 탭 컨트롤에서 분리되는 경우
         if (parent is TabItem tabItem && tabItem.Parent is TabControl tabControl)
         {
             tabControl.Items.Remove(tabItem);
-
-            // 탭이 비었으면 제거
-            if (tabControl.Items.Count == 0)
-            {
-                if (tabControl.Parent is Grid parentGrid)
-                {
-                    parentGrid.Children.Remove(tabControl);
-                    RemoveFromDictionary(tabControl);
-                    PruneTree(parentGrid);
-                }
-            }
-            // 하나 남았으면 패널로 복구
+            if (tabControl.Items.Count == 0) { if (tabControl.Parent is Grid pg) { pg.Children.Remove(tabControl); RemoveFromDictionary(tabControl); PruneTree(pg); } }
             else if (tabControl.Items.Count == 1)
             {
                 var lastTab = tabControl.Items[0] as TabItem;
                 var content = lastTab.Content as DockingPanel;
-
                 if (content != null)
                 {
-                    lastTab.Content = null;
-                    tabControl.Items.Clear();
-
-                    if (tabControl.Parent is Grid parentGrid)
-                    {
-                        int r = Grid.GetRow(tabControl);
-                        int c = Grid.GetColumn(tabControl);
-                        int rs = Grid.GetRowSpan(tabControl);
-                        int cs = Grid.GetColumnSpan(tabControl);
-
-                        parentGrid.Children.Remove(tabControl);
-                        parentGrid.Children.Add(content);
-
-                        Grid.SetRow(content, r);
-                        Grid.SetColumn(content, c);
-                        Grid.SetRowSpan(content, rs);
-                        Grid.SetColumnSpan(content, cs);
-
-                        UpdateDockDictionary(tabControl, content);
-                    }
+                    lastTab.Content = null; tabControl.Items.Clear();
+                    if (tabControl.Parent is Grid pg) { int r = Grid.GetRow(tabControl), c = Grid.GetColumn(tabControl), rs = Grid.GetRowSpan(tabControl), cs = Grid.GetColumnSpan(tabControl); pg.Children.Remove(tabControl); pg.Children.Add(content); Grid.SetRow(content, r); Grid.SetColumn(content, c); Grid.SetRowSpan(content, rs); Grid.SetColumnSpan(content, cs); UpdateDockDictionary(tabControl, content); }
                 }
             }
         }
-        // 2. 일반 Grid나 Panel에서 분리되는 경우
-        else if (parent is Grid parentGrid)
-        {
-            parentGrid.Children.Remove(panel);
-            PruneTree(parentGrid);
-        }
-        else if (parent is Panel p)
-        {
-            p.Children.Remove(panel);
-        }
+        else if (parent is Panel p) { p.Children.Remove(panel); if (p is Grid pg) PruneTree(pg); }
 
-        if (_dockedPanels.ContainsKey(oldPosition) && _dockedPanels[oldPosition] == panel)
-        {
-            _dockedPanels.Remove(oldPosition);
-        }
+        if (_dockedPanels.ContainsKey(oldPosition) && _dockedPanels[oldPosition] == panel) _dockedPanels.Remove(oldPosition);
+        panel.DockPosition = DockPosition.None; panel.IsFloating = true;
 
-        panel.DockPosition = DockPosition.None;
-        panel.IsFloating = true;
-
-        var floatingWindow = new FloatingWindow(panel)
-        {
-            SourceManager = this,
-            Owner = Window.GetWindow(this)
-        };
-
+        var floatingWindow = new FloatingWindow(panel) { SourceManager = this, Owner = Window.GetWindow(this) };
         var source = PresentationSource.FromVisual(this);
-        double sx = 1.0, sy = 1.0;
-        if (source?.CompositionTarget != null)
-        {
-            sx = source.CompositionTarget.TransformToDevice.M11;
-            sy = source.CompositionTarget.TransformToDevice.M22;
-        }
+        double sx = source?.CompositionTarget?.TransformToDevice.M11 ?? 1.0, sy = source?.CompositionTarget?.TransformToDevice.M22 ?? 1.0;
 
-        floatingWindow.Left = (screenPoint.X / sx) - dragOffset.X;
-        floatingWindow.Top = (screenPoint.Y / sy) - dragOffset.Y;
-
-        _floatingWindows.Add(floatingWindow);
-        floatingWindow.Closed += (s, e) => _floatingWindows.Remove(floatingWindow);
-
-        floatingWindow.Show();
-        floatingWindow.StartDragging(screenPoint, dragOffset);
-
-        UpdateGridSizes();
-        ShowDockPreview(false);
-        _draggingPanel = null;
+        floatingWindow.Left = (screenPoint.X / sx) - dragOffset.X; floatingWindow.Top = (screenPoint.Y / sy) - dragOffset.Y;
+        _floatingWindows.Add(floatingWindow); floatingWindow.Closed += (s, e) => _floatingWindows.Remove(floatingWindow);
+        floatingWindow.Show(); floatingWindow.StartDragging(screenPoint, dragOffset);
+        UpdateGridSizes(); ShowDockPreview(false); _draggingPanel = null;
     }
 
-    public void ShowDockPreview(bool show)
-    {
-        if (_dockPreview != null)
-            _dockPreview.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-
-        if (!show && _compass != null)
-            _compass.Visibility = Visibility.Collapsed;
-    }
+    public void ShowDockPreview(bool show) { if (_dockPreview != null) _dockPreview.Visibility = show ? Visibility.Visible : Visibility.Collapsed; if (!show && _compass != null) _compass.Visibility = Visibility.Collapsed; }
 
     private DockingPanel GetDockingPanelAt(Point pt)
     {
-        DockingPanel foundPanel = null;
-        VisualTreeHelper.HitTest(_rootGrid,
-            (obj) =>
-            {
-                if (obj == _overlayCanvas || obj == _compass || obj == _dockPreview || (obj is FrameworkElement fe && fe.Parent == _overlayCanvas))
-                    return HitTestFilterBehavior.ContinueSkipSelfAndChildren;
-                return HitTestFilterBehavior.Continue;
-            },
-            (result) =>
-            {
-                var panel = FindParent<DockingPanel>(result.VisualHit);
-                if (panel != null)
-                {
-                    foundPanel = panel;
-                    return HitTestResultBehavior.Stop;
-                }
-                return HitTestResultBehavior.Continue;
-            },
-            new PointHitTestParameters(pt));
-
-        return foundPanel;
+        DockingPanel found = null;
+        VisualTreeHelper.HitTest(_rootGrid, (obj) => (obj == _overlayCanvas || obj == _compass || obj == _dockPreview || (obj is FrameworkElement fe && fe.Parent == _overlayCanvas)) ? HitTestFilterBehavior.ContinueSkipSelfAndChildren : HitTestFilterBehavior.Continue, (result) => { var p = FindParent<DockingPanel>(result.VisualHit); if (p != null) { found = p; return HitTestResultBehavior.Stop; } return HitTestResultBehavior.Continue; }, new PointHitTestParameters(pt));
+        return found;
     }
 
     public void UpdateDockPreviewFromScreen(Point screenPoint)
     {
-        var localPoint = PointFromScreen(screenPoint);
-
-        if (!IsPointInBounds(localPoint))
-        {
-            ShowDockPreview(false);
-            return;
-        }
-
-        // 1. 나침반 상호작용
+        var local = PointFromScreen(screenPoint);
+        if (!IsPointInBounds(local)) { ShowDockPreview(false); return; }
         if (_compass.Visibility == Visibility.Visible)
         {
-            var mouseOnCompass = this.TranslatePoint(localPoint, _compass);
-            bool isOverCompass = mouseOnCompass.X >= -10 && mouseOnCompass.X <= _compass.ActualWidth + 10 &&
-                                 mouseOnCompass.Y >= -10 && mouseOnCompass.Y <= _compass.ActualHeight + 10;
-
-            if (isOverCompass)
-            {
-                if (_compass.UpdateHover(mouseOnCompass))
-                {
-                    if (_targetDockPanel != null)
-                        UpdatePreviewForCompass(_targetDockPanel, _compass.CurrentHover);
-                }
-                else
-                {
-                    if (_targetDockPanel != null)
-                        SetPreviewRectForPanel(_targetDockPanel);
-                }
-                return;
-            }
+            var mc = TranslatePoint(local, _compass);
+            if (mc.X >= -10 && mc.X <= _compass.ActualWidth + 10 && mc.Y >= -10 && mc.Y <= _compass.ActualHeight + 10) { if (_compass.UpdateHover(mc) && _targetDockPanel != null) UpdatePreviewForCompass(_targetDockPanel, _compass.CurrentHover); else if (_targetDockPanel != null) SetPreviewRectForPanel(_targetDockPanel); return; }
         }
-
-        // 2. 패널 탐색
-        var targetPanel = GetDockingPanelAt(localPoint);
-
-        if (targetPanel != null && targetPanel != _draggingPanel && !targetPanel.IsFloating)
-        {
-            _targetDockPanel = targetPanel;
-
-            var panelCenter = targetPanel.TranslatePoint(new Point(targetPanel.ActualWidth / 2, targetPanel.ActualHeight / 2), _overlayCanvas);
-            Canvas.SetLeft(_compass, panelCenter.X - (_compass.Width / 2));
-            Canvas.SetTop(_compass, panelCenter.Y - (_compass.Height / 2));
-
-            _compass.Visibility = Visibility.Visible;
-            _compass.UpdateHover(new Point(-999, -999));
-
-            SetPreviewRectForPanel(targetPanel);
-        }
-        else
-        {
-            _compass.Visibility = Visibility.Collapsed;
-            _targetDockPanel = null;
-
-            var edgePos = GetEdgeDockPosition(localPoint);
-            if (edgePos != DockPosition.None)
-            {
-                UpdatePreviewRect(edgePos);
-            }
-            else
-            {
-                _dockPreview.Visibility = Visibility.Collapsed;
-            }
-        }
+        var target = GetDockingPanelAt(local);
+        if (target != null && target != _draggingPanel && !target.IsFloating) { _targetDockPanel = target; var pc = target.TranslatePoint(new Point(target.ActualWidth / 2, target.ActualHeight / 2), _overlayCanvas); Canvas.SetLeft(_compass, pc.X - (_compass.Width / 2)); Canvas.SetTop(_compass, pc.Y - (_compass.Height / 2)); _compass.Visibility = Visibility.Visible; _compass.UpdateHover(new Point(-999, -999)); SetPreviewRectForPanel(target); }
+        else { _compass.Visibility = Visibility.Collapsed; _targetDockPanel = null; var ep = GetEdgeDockPosition(local); if (ep != DockPosition.None) UpdatePreviewRect(ep); else _dockPreview.Visibility = Visibility.Collapsed; }
     }
 
-    private void SetPreviewRectForPanel(DockingPanel target)
+    private void SetPreviewRectForPanel(DockingPanel target) { var tp = target.TranslatePoint(new Point(0, 0), _overlayCanvas); SetPreviewRect(tp.X, tp.Y, target.ActualWidth, target.ActualHeight); }
+    private void UpdatePreviewForCompass(DockingPanel target, CompassTarget ct)
     {
-        var targetPos = target.TranslatePoint(new Point(0, 0), _overlayCanvas);
-        SetPreviewRect(targetPos.X, targetPos.Y, target.ActualWidth, target.ActualHeight);
-    }
-
-    private void UpdatePreviewForCompass(DockingPanel target, CompassTarget compassTarget)
-    {
-        var targetPos = target.TranslatePoint(new Point(0, 0), _overlayCanvas);
-        double w = target.ActualWidth;
-        double h = target.ActualHeight;
-
-        double px = targetPos.X;
-        double py = targetPos.Y;
-        double pw = w;
-        double ph = h;
-
-        switch (compassTarget)
-        {
-            case CompassTarget.Left:
-                pw = w / 2;
-                break;
-            case CompassTarget.Right:
-                px = targetPos.X + w / 2;
-                pw = w / 2;
-                break;
-            case CompassTarget.Top:
-                ph = h / 2;
-                break;
-            case CompassTarget.Bottom:
-                py = targetPos.Y + h / 2;
-                ph = h / 2;
-                break;
-            case CompassTarget.Center:
-                // 탭 모드는 전체
-                break;
-        }
-
+        var tp = target.TranslatePoint(new Point(0, 0), _overlayCanvas);
+        double w = target.ActualWidth, h = target.ActualHeight, px = tp.X, py = tp.Y, pw = w, ph = h;
+        switch (ct) { case CompassTarget.Left: pw = w / 2; break; case CompassTarget.Right: px = tp.X + w / 2; pw = w / 2; break; case CompassTarget.Top: ph = h / 2; break; case CompassTarget.Bottom: py = tp.Y + h / 2; ph = h / 2; break; }
         SetPreviewRect(px, py, pw, ph);
     }
 
-    public bool TryDockFromScreen(FloatingWindow floatingWindow, Point screenPoint)
+    public bool TryDockFromScreen(FloatingWindow fw, Point sp)
     {
-        var localPoint = PointFromScreen(screenPoint);
-        if (!IsPointInBounds(localPoint))
-        {
-            ShowDockPreview(false);
-            return false;
-        }
-
-        floatingWindow.ForceUnsubscribe();
-
-        var panel = floatingWindow.Panel;
-        floatingWindow.Content = null;
-        panel.IsFloating = false;
-        panel.ResetManagerCache();
-
-        // 1. 나침반 정밀 도킹
-        if (_compass.Visibility == Visibility.Visible && _compass.CurrentHover != CompassTarget.None && _targetDockPanel != null)
-        {
-            if (_compass.CurrentHover == CompassTarget.Center)
-            {
-                DockAsTab(_targetDockPanel, panel);
-            }
-            else
-            {
-                DockPosition splitPos = CompassTargetToDockPos(_compass.CurrentHover);
-                SplitAndDock(_targetDockPanel, panel, splitPos);
-            }
-            ShowDockPreview(false);
-            return true;
-        }
-
-        // 2. 가장자리 도킹 (빈 공간은 Center/Stretch로 처리)
-        var position = GetEdgeDockPosition(localPoint);
-        if (position != DockPosition.None)
-        {
-            if (!_dockedPanels.TryGetValue(position, out var existingControl))
-            {
-                AddPanel(panel, position);
-            }
-            else
-            {
-                SplitAndDock(existingControl, panel, position);
-            }
-            ShowDockPreview(false);
-            return true;
-        }
-
-        ShowDockPreview(false);
-        return false;
+        var lp = PointFromScreen(sp);
+        if (!IsPointInBounds(lp)) { ShowDockPreview(false); return false; }
+        fw.ForceUnsubscribe(); var panel = fw.Panel; fw.Content = null; panel.IsFloating = false; panel.ResetManagerCache();
+        if (_compass.Visibility == Visibility.Visible && _compass.CurrentHover != CompassTarget.None && _targetDockPanel != null) { if (_compass.CurrentHover == CompassTarget.Center) DockAsTab(_targetDockPanel, panel); else SplitAndDock(_targetDockPanel, panel, CompassTargetToDockPos(_compass.CurrentHover)); ShowDockPreview(false); return true; }
+        var pos = GetEdgeDockPosition(lp);
+        if (pos != DockPosition.None) { if (!_dockedPanels.TryGetValue(pos, out var existing)) AddPanel(panel, pos); else SplitAndDock(existing, panel, pos); ShowDockPreview(false); return true; }
+        ShowDockPreview(false); return false;
     }
 
-    private DockPosition CompassTargetToDockPos(CompassTarget target)
+    private DockPosition CompassTargetToDockPos(CompassTarget t) => t switch { CompassTarget.Left => DockPosition.Left, CompassTarget.Right => DockPosition.Right, CompassTarget.Top => DockPosition.Top, CompassTarget.Bottom => DockPosition.Bottom, _ => DockPosition.Center };
+    private DockPosition GetEdgeDockPosition(Point p) { double edge = _compass.Visibility == Visibility.Visible ? 30 : 80; if (p.X < edge) return DockPosition.Left; if (p.X > ActualWidth - edge) return DockPosition.Right; if (p.Y < edge) return DockPosition.Top; if (p.Y > ActualHeight - edge) return DockPosition.Bottom; return DockPosition.Center; }
+
+    private void DockAsTab(FrameworkElement existing, DockingPanel newPanel)
     {
-        switch (target)
+        TabControl tc = existing as TabControl ?? FindParent<TabControl>(existing);
+        if (tc != null) { var nt = CreateTabItem(newPanel); tc.Items.Add(nt); tc.SelectedItem = nt; tc.TabStripPlacement = newPanel.TabPlacement; SyncTabGroupOptions(tc, newPanel.IsHeaderVisible); return; }
+        var parent = existing.Parent as Panel; if (parent == null) return;
+        var ntc = new TabControl { TabStripPlacement = newPanel.TabPlacement };
+        var t1 = CreateTabItem(existing is DockingPanel dp ? dp : new DockingPanel { Header = "Panel", Content = existing });
+        var t2 = CreateTabItem(newPanel);
+        ntc.Items.Add(t1); ntc.Items.Add(t2); ntc.SelectedIndex = 1; SyncTabGroupOptions(ntc, newPanel.IsHeaderVisible);
+        int r = Grid.GetRow(existing), c = Grid.GetColumn(existing), rs = Grid.GetRowSpan(existing), cs = Grid.GetColumnSpan(existing);
+        parent.Children.Remove(existing); parent.Children.Add(ntc); Grid.SetRow(ntc, r); Grid.SetColumn(ntc, c); Grid.SetRowSpan(ntc, rs); Grid.SetColumnSpan(ntc, cs); UpdateDockDictionary(existing, ntc);
+    }
+
+    private TabItem CreateTabItem(DockingPanel panel)
+    {
+        var tabItem = new TabItem { Header = panel.Header, Content = panel };
+        tabItem.PreviewMouseLeftButtonDown += OnTabPreviewMouseDown;
+        tabItem.PreviewMouseMove += OnTabPreviewMouseMove;
+        tabItem.PreviewMouseLeftButtonUp += OnTabPreviewMouseUp;
+        return tabItem;
+    }
+
+    private void OnTabPreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is TabItem ti) { _tabDragStartPoint = e.GetPosition(this); _isTabDragging = true; ti.CaptureMouse(); }
+    }
+
+    private void OnTabPreviewMouseMove(object sender, MouseEventArgs e)
+    {
+        if (!_isTabDragging || !(sender is TabItem ti)) return;
+        var delta = e.GetPosition(this) - _tabDragStartPoint;
+        if (Math.Abs(delta.X) > 10 || Math.Abs(delta.Y) > 10)
         {
-            case CompassTarget.Left: return DockPosition.Left;
-            case CompassTarget.Right: return DockPosition.Right;
-            case CompassTarget.Top: return DockPosition.Top;
-            case CompassTarget.Bottom: return DockPosition.Bottom;
-            default: return DockPosition.Center;
+            _isTabDragging = false; ti.ReleaseMouseCapture();
+            if (ti.Content is DockingPanel panel) DetachPanel(panel, PointToScreen(e.GetPosition(this)), e.GetPosition(ti));
         }
     }
 
-    private DockPosition GetEdgeDockPosition(Point point)
+    private void OnTabPreviewMouseUp(object sender, MouseButtonEventArgs e) { _isTabDragging = false; if (sender is TabItem ti) ti.ReleaseMouseCapture(); }
+
+    private void SyncTabGroupOptions(TabControl tc, bool hv) { foreach (TabItem item in tc.Items) if (item.Content is DockingPanel p) p.IsHeaderVisible = hv; }
+
+    private void SplitAndDock(FrameworkElement existing, DockingPanel newPanel, DockPosition pos)
     {
-        double width = ActualWidth;
-        double height = ActualHeight;
-        double edgeSize = 80;
-
-        if (_compass.Visibility == Visibility.Visible) edgeSize = 30;
-
-        if (point.X < edgeSize) return DockPosition.Left;
-        if (point.X > width - edgeSize) return DockPosition.Right;
-        if (point.Y < edgeSize) return DockPosition.Top;
-        if (point.Y > height - edgeSize) return DockPosition.Bottom;
-
-        return DockPosition.Center; // 빈 공간은 Center로 처리하여 Stretch 효과
+        FrameworkElement target = FindParent<TabControl>(existing) ?? existing;
+        var parent = target.Parent as Panel; if (parent == null) return;
+        var sg = new Grid(); bool useCol = (pos == DockPosition.Left || pos == DockPosition.Right);
+        if (useCol) { sg.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); sg.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) }); sg.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); }
+        else { sg.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); sg.RowDefinitions.Add(new RowDefinition { Height = new GridLength(4) }); sg.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); }
+        int r = Grid.GetRow(target), c = Grid.GetColumn(target), rs = Grid.GetRowSpan(target), cs = Grid.GetColumnSpan(target);
+        parent.Children.Remove(target); parent.Children.Add(sg); Grid.SetRow(sg, r); Grid.SetColumn(sg, c); Grid.SetRowSpan(sg, rs); Grid.SetColumnSpan(sg, cs);
+        bool isFirst = (pos == DockPosition.Left || pos == DockPosition.Top);
+        var f = isFirst ? (UIElement)newPanel : target; var s = isFirst ? (UIElement)target : newPanel;
+        sg.Children.Add(f); sg.Children.Add(s);
+        if (useCol) { SetSubGridPos(f, 0, 0); SetSubGridPos(s, 0, 2); } else { SetSubGridPos(f, 0, 0); SetSubGridPos(s, 2, 0); }
+        newPanel.DockPosition = pos;
+        var gs = new GridSplitter { HorizontalAlignment = useCol ? HorizontalAlignment.Center : HorizontalAlignment.Stretch, VerticalAlignment = useCol ? VerticalAlignment.Stretch : VerticalAlignment.Center, Background = Brushes.Gray, ShowsPreview = true };
+        if (useCol) { gs.Width = 4; Grid.SetRow(gs, 0); Grid.SetColumn(gs, 1); } else { gs.Height = 4; Grid.SetRow(gs, 1); Grid.SetColumn(gs, 0); }
+        sg.Children.Add(gs); if (_dockedPanels.ContainsKey(pos) && _dockedPanels[pos] == target) _dockedPanels[pos] = sg;
     }
 
-    private void DockAsTab(FrameworkElement existingControl, DockingPanel newPanel)
+    private void PruneTree(Grid g)
     {
-        // 1. VisualTree를 탐색하여 TabControl을 확실하게 찾기
-        TabControl targetTabControl = existingControl as TabControl;
-
-        if (targetTabControl == null)
+        if (g == null || g == _rootGrid) return;
+        var cc = g.Children.OfType<FrameworkElement>().Where(c => !(c is GridSplitter)).ToList();
+        var p = g.Parent as Grid;
+        if (cc.Count == 0) { if (p != null) { p.Children.Remove(g); RemoveFromDictionary(g); PruneTree(p); } }
+        else if (cc.Count == 1)
         {
-            DependencyObject current = existingControl;
-            while (current != null)
-            {
-                if (current is TabControl tc)
-                {
-                    targetTabControl = tc;
-                    break;
-                }
-                if (current is DockingManager) break;
-
-                current = VisualTreeHelper.GetParent(current);
-            }
-        }
-
-        // 2. 이미 탭 컨트롤이라면 새 탭 추가
-        if (targetTabControl != null)
-        {
-            var newTab = new TabItem { Header = newPanel.Header, Content = newPanel };
-            targetTabControl.Items.Add(newTab);
-            targetTabControl.SelectedItem = newTab;
-            return;
-        }
-
-        // 3. 탭이 없다면 새로 생성하여 감싸기
-        var parent = existingControl.Parent as Panel;
-        if (parent == null) return;
-
-        // [수정] 탭 헤더를 아래쪽(Bottom)으로 배치
-        var newTabControl = new TabControl
-        {
-            TabStripPlacement = Dock.Bottom
-        };
-
-        string oldHeader = (existingControl is DockingPanel dp) ? dp.Header : "Panel";
-
-        var tab1 = new TabItem { Header = oldHeader, Content = existingControl };
-        var tab2 = new TabItem { Header = newPanel.Header, Content = newPanel };
-
-        newTabControl.Items.Add(tab1);
-        newTabControl.Items.Add(tab2);
-        newTabControl.SelectedIndex = 1;
-
-        // 기존 컨트롤의 Grid 위치 정보 복사
-        int r = Grid.GetRow(existingControl);
-        int c = Grid.GetColumn(existingControl);
-        int rs = Grid.GetRowSpan(existingControl);
-        int cs = Grid.GetColumnSpan(existingControl);
-
-        // 부모 컨테이너에서 교체
-        parent.Children.Remove(existingControl);
-        parent.Children.Add(newTabControl);
-
-        // 새 탭 컨트롤에 위치 정보 적용
-        Grid.SetRow(newTabControl, r);
-        Grid.SetColumn(newTabControl, c);
-        Grid.SetRowSpan(newTabControl, rs);
-        Grid.SetColumnSpan(newTabControl, cs);
-
-        // 관리 딕셔너리 업데이트
-        UpdateDockDictionary(existingControl, newTabControl);
-    }
-
-    private void SplitAndDock(FrameworkElement existingControl, DockingPanel newPanel, DockPosition position)
-    {
-        FrameworkElement actualTarget = existingControl;
-        if (FindParent<TabControl>(existingControl) is TabControl parentTab)
-        {
-            actualTarget = parentTab;
-        }
-
-        var parentContainer = actualTarget.Parent as Panel;
-        if (parentContainer == null) return;
-
-        var splitGrid = new Grid();
-        bool useColumns = (position == DockPosition.Left || position == DockPosition.Right);
-
-        if (useColumns)
-        {
-            splitGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            splitGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) });
-            splitGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        }
-        else
-        {
-            splitGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            splitGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(4) });
-            splitGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        }
-
-        int r = Grid.GetRow(actualTarget);
-        int c = Grid.GetColumn(actualTarget);
-        int rs = Grid.GetRowSpan(actualTarget);
-        int cs = Grid.GetColumnSpan(actualTarget);
-
-        parentContainer.Children.Remove(actualTarget);
-        parentContainer.Children.Add(splitGrid);      
-
-        Grid.SetRow(splitGrid, r);
-        Grid.SetColumn(splitGrid, c);
-        Grid.SetRowSpan(splitGrid, rs);
-        Grid.SetColumnSpan(splitGrid, cs);
-
-        bool isNewPanelFirst = (position == DockPosition.Left || position == DockPosition.Top);
-
-        var firstItem = isNewPanelFirst ? (UIElement)newPanel : actualTarget;
-        var secondItem = isNewPanelFirst ? (UIElement)actualTarget : newPanel;
-
-        splitGrid.Children.Add(firstItem);
-        splitGrid.Children.Add(secondItem);
-
-        if (useColumns)
-        {
-            SetSubGridPosition(firstItem, 0, 0);
-            SetSubGridPosition(secondItem, 0, 2);
-        }
-        else
-        {
-            SetSubGridPosition(firstItem, 0, 0);
-            SetSubGridPosition(secondItem, 2, 0);
-        }
-
-        newPanel.DockPosition = position;
-
-        var splitter = new GridSplitter
-        {
-            HorizontalAlignment = useColumns ? HorizontalAlignment.Center : HorizontalAlignment.Stretch,
-            VerticalAlignment = useColumns ? VerticalAlignment.Stretch : VerticalAlignment.Center,
-            Background = Brushes.Gray,
-            ShowsPreview = true
-        };
-
-        if (useColumns)
-        {
-            splitter.Width = 4;
-            Grid.SetRow(splitter, 0);
-            Grid.SetColumn(splitter, 1);
-        }
-        else
-        {
-            splitter.Height = 4;
-            Grid.SetRow(splitter, 1);
-            Grid.SetColumn(splitter, 0);
-        }
-        splitGrid.Children.Add(splitter);
-
-        if (_dockedPanels.ContainsKey(position) && _dockedPanels[position] == actualTarget)
-        {
-            _dockedPanels[position] = splitGrid;
+            var s = cc[0]; g.Children.Remove(s);
+            if (p != null) { int r = Grid.GetRow(g), c = Grid.GetColumn(g), rs = Grid.GetRowSpan(g), cs = Grid.GetColumnSpan(g); p.Children.Remove(g); p.Children.Add(s); Grid.SetRow(s, r); Grid.SetColumn(s, c); Grid.SetRowSpan(s, rs); Grid.SetColumnSpan(s, cs); UpdateDockDictionary(g, s); PruneTree(p); }
+            else if (g.Parent == _rootGrid) { _rootGrid.Children.Remove(g); _rootGrid.Children.Add(s); Grid.SetRow(s, Grid.GetRow(g)); Grid.SetColumn(s, Grid.GetColumn(g)); Grid.SetRowSpan(s, Grid.GetRowSpan(g)); Grid.SetColumnSpan(s, Grid.GetColumnSpan(g)); UpdateDockDictionary(g, s); }
         }
     }
 
-    private void PruneTree(Grid container)
+    private void RemoveFromDictionary(FrameworkElement e) { var keys = _dockedPanels.Where(k => k.Value == e).Select(k => k.Key).ToList(); foreach (var k in keys) _dockedPanels.Remove(k); }
+    private void UpdateDockDictionary(FrameworkElement o, FrameworkElement n) { var keys = _dockedPanels.Where(k => k.Value == o).Select(k => k.Key).ToList(); foreach (var k in keys) _dockedPanels[k] = n; }
+    private void SetSubGridPos(UIElement e, int r, int c) { Grid.SetRow(e, r); Grid.SetColumn(e, c); Grid.SetRowSpan(e, 1); Grid.SetColumnSpan(e, 1); }
+    private bool IsPointInBounds(Point p) => p.X >= 0 && p.X <= ActualWidth && p.Y >= 0 && p.Y <= ActualHeight;
+    private void UpdatePreviewRect(DockPosition pos)
     {
-        if (container == null || container == _rootGrid) return;
-
-        var contentChildren = container.Children.OfType<FrameworkElement>()
-                                .Where(c => !(c is GridSplitter))
-                                .ToList();
-
-        var parent = container.Parent as Grid;
-
-        if (contentChildren.Count == 0)
-        {
-            if (parent != null)
-            {
-                parent.Children.Remove(container);
-                RemoveFromDictionary(container);
-                PruneTree(parent);
-            }
-        }
-        else if (contentChildren.Count == 1)
-        {
-            var survivor = contentChildren[0];
-            container.Children.Remove(survivor);
-
-            if (parent != null)
-            {
-                int r = Grid.GetRow(container);
-                int c = Grid.GetColumn(container);
-                int rs = Grid.GetRowSpan(container);
-                int cs = Grid.GetColumnSpan(container);
-
-                parent.Children.Remove(container);
-                parent.Children.Add(survivor);
-
-                Grid.SetRow(survivor, r);
-                Grid.SetColumn(survivor, c);
-                Grid.SetRowSpan(survivor, rs);
-                Grid.SetColumnSpan(survivor, cs);
-
-                UpdateDockDictionary(container, survivor);
-                PruneTree(parent);
-            }
-            else if (container.Parent == _rootGrid)
-            {
-                _rootGrid.Children.Remove(container);
-                _rootGrid.Children.Add(survivor);
-
-                Grid.SetRow(survivor, Grid.GetRow(container));
-                Grid.SetColumn(survivor, Grid.GetColumn(container));
-                Grid.SetRowSpan(survivor, Grid.GetRowSpan(container));
-                Grid.SetColumnSpan(survivor, Grid.GetColumnSpan(container));
-
-                UpdateDockDictionary(container, survivor);
-            }
-        }
+        double w = ActualWidth, h = ActualHeight, l = _dockedPanels.ContainsKey(DockPosition.Left) ? LeftPanelWidth : 0, r = _dockedPanels.ContainsKey(DockPosition.Right) ? RightPanelWidth : 0, t = _dockedPanels.ContainsKey(DockPosition.Top) ? TopPanelHeight : 0, b = _dockedPanels.ContainsKey(DockPosition.Bottom) ? BottomPanelHeight : 0;
+        switch (pos) { case DockPosition.Left: SetPreviewRect(0, 0, LeftPanelWidth, h); break; case DockPosition.Right: SetPreviewRect(w - RightPanelWidth, 0, RightPanelWidth, h); break; case DockPosition.Top: SetPreviewRect(l, 0, w - l - r, TopPanelHeight); break; case DockPosition.Bottom: SetPreviewRect(l, h - BottomPanelHeight, w - l - r, BottomPanelHeight); break; case DockPosition.Center: SetPreviewRect(l, t, w - l - r, h - t - b); break; default: _dockPreview.Visibility = Visibility.Collapsed; break; }
     }
-
-    private void RemoveFromDictionary(FrameworkElement element)
-    {
-        var keys = _dockedPanels.Where(k => k.Value == element).Select(k => k.Key).ToList();
-        foreach (var k in keys) _dockedPanels.Remove(k);
-    }
-
-    private void UpdateDockDictionary(FrameworkElement oldItem, FrameworkElement newItem)
-    {
-        var keys = _dockedPanels.Where(k => k.Value == oldItem).Select(k => k.Key).ToList();
-        foreach (var k in keys) _dockedPanels[k] = newItem;
-    }
-
-    private void SetSubGridPosition(UIElement element, int row, int col)
-    {
-        Grid.SetRow(element, row);
-        Grid.SetColumn(element, col);
-        Grid.SetRowSpan(element, 1);
-        Grid.SetColumnSpan(element, 1);
-    }
-
-    private bool IsPointInBounds(Point point)
-    {
-        return point.X >= 0 && point.X <= ActualWidth &&
-               point.Y >= 0 && point.Y <= ActualHeight;
-    }
-
-    private void UpdatePreviewRect(DockPosition position)
-    {
-        double w = ActualWidth;
-        double h = ActualHeight;
-
-        double l = _dockedPanels.ContainsKey(DockPosition.Left) ? LeftPanelWidth : 0;
-        double r = _dockedPanels.ContainsKey(DockPosition.Right) ? RightPanelWidth : 0;
-        double t = _dockedPanels.ContainsKey(DockPosition.Top) ? TopPanelHeight : 0;
-        double b = _dockedPanels.ContainsKey(DockPosition.Bottom) ? BottomPanelHeight : 0;
-
-        switch (position)
-        {
-            case DockPosition.Left:
-                SetPreviewRect(0, 0, LeftPanelWidth, h);
-                break;
-            case DockPosition.Right:
-                SetPreviewRect(w - RightPanelWidth, 0, RightPanelWidth, h);
-                break;
-            case DockPosition.Top:
-                SetPreviewRect(l, 0, w - l - r, TopPanelHeight);
-                break;
-            case DockPosition.Bottom:
-                SetPreviewRect(l, h - BottomPanelHeight, w - l - r, BottomPanelHeight);
-                break;
-            case DockPosition.Center:
-                SetPreviewRect(l, t, w - l - r, h - t - b);
-                break;
-            default:
-                _dockPreview.Visibility = Visibility.Collapsed;
-                break;
-        }
-    }
-
-    private void SetPreviewRect(double x, double y, double w, double h)
-    {
-        Canvas.SetLeft(_dockPreview, x);
-        Canvas.SetTop(_dockPreview, y);
-        _dockPreview.Width = Math.Max(0, w);
-        _dockPreview.Height = Math.Max(0, h);
-        _dockPreview.Visibility = Visibility.Visible;
-    }
-
-    private void MovePanelToPosition(DockingPanel panel, DockPosition newPosition)
-    {
-        var oldPosition = panel.DockPosition;
-
-        if (_dockedPanels.TryGetValue(oldPosition, out var oldContent) && oldContent == panel)
-        {
-            _dockedPanels.Remove(oldPosition);
-        }
-
-        if (_dockedPanels.TryGetValue(newPosition, out var existing))
-        {
-            _dockedPanels.Remove(newPosition);
-            _rootGrid.Children.Remove(existing);
-
-            if (existing is DockingPanel existingPanel)
-            {
-                existingPanel.DockPosition = oldPosition;
-                _dockedPanels[oldPosition] = existingPanel;
-                SetPanelGridPosition(existingPanel, oldPosition);
-                _rootGrid.Children.Add(existingPanel);
-            }
-        }
-
-        panel.DockPosition = newPosition;
-        _dockedPanels[newPosition] = panel;
-        SetPanelGridPosition(panel, newPosition);
-        UpdateGridSizes();
-    }
-
-    private T FindParent<T>(DependencyObject child) where T : DependencyObject
-    {
-        if (child == null) return null;
-        DependencyObject parentObject = VisualTreeHelper.GetParent(child);
-        if (parentObject == null) return null;
-        if (parentObject is T parent) return parent;
-        return FindParent<T>(parentObject);
-    }
+    private void SetPreviewRect(double x, double y, double w, double h) { Canvas.SetLeft(_dockPreview, x); Canvas.SetTop(_dockPreview, y); _dockPreview.Width = Math.Max(0, w); _dockPreview.Height = Math.Max(0, h); _dockPreview.Visibility = Visibility.Visible; }
+    private T FindParent<T>(DependencyObject c) where T : DependencyObject { if (c == null) return null; var p = VisualTreeHelper.GetParent(c); return p is T tp ? tp : FindParent<T>(p); }
 }
