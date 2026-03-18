@@ -1,0 +1,29 @@
+name: NuGet Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Pack Foundation
+        run: dotnet pack src/Jamesnet.Foundation/Jamesnet.Foundation.csproj -c Release --no-build-check
+
+      - name: Pack Platform.WPF
+        run: dotnet pack src/Jamesnet.Platform.WPF/Jamesnet.Platform.WPF.csproj -c Release --no-build-check
+
+      - name: Push to NuGet
+        run: |
+          dotnet nuget push src/Jamesnet.Foundation/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push src/Jamesnet.Platform.WPF/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
