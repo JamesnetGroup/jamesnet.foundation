@@ -4,17 +4,17 @@ namespace Jamesnet.Platform.Wpf.Responsive;
 
 public static class ResponsiveVisibility
 {
-    public static readonly DependencyProperty DesktopVisibilityProperty =
-        DependencyProperty.RegisterAttached("DesktopVisibility", typeof(Visibility), typeof(ResponsiveVisibility),
+    public static readonly DependencyProperty DesktopProperty =
+        DependencyProperty.RegisterAttached("Desktop", typeof(Visibility), typeof(ResponsiveVisibility),
             new PropertyMetadata(Visibility.Visible, OnPropertyChanged));
-    public static Visibility GetDesktopVisibility(DependencyObject obj) => (Visibility)obj.GetValue(DesktopVisibilityProperty);
-    public static void SetDesktopVisibility(DependencyObject obj, Visibility value) => obj.SetValue(DesktopVisibilityProperty, value);
+    public static Visibility GetDesktop(DependencyObject obj) => (Visibility)obj.GetValue(DesktopProperty);
+    public static void SetDesktop(DependencyObject obj, Visibility value) => obj.SetValue(DesktopProperty, value);
 
-    public static readonly DependencyProperty MobileVisibilityProperty =
-        DependencyProperty.RegisterAttached("MobileVisibility", typeof(Visibility), typeof(ResponsiveVisibility),
+    public static readonly DependencyProperty MobileProperty =
+        DependencyProperty.RegisterAttached("Mobile", typeof(Visibility), typeof(ResponsiveVisibility),
             new PropertyMetadata(Visibility.Collapsed, OnPropertyChanged));
-    public static Visibility GetMobileVisibility(DependencyObject obj) => (Visibility)obj.GetValue(MobileVisibilityProperty);
-    public static void SetMobileVisibility(DependencyObject obj, Visibility value) => obj.SetValue(MobileVisibilityProperty, value);
+    public static Visibility GetMobile(DependencyObject obj) => (Visibility)obj.GetValue(MobileProperty);
+    public static void SetMobile(DependencyObject obj, Visibility value) => obj.SetValue(MobileProperty, value);
 
     public static readonly DependencyProperty BreakpointProperty =
         DependencyProperty.RegisterAttached("Breakpoint", typeof(double), typeof(ResponsiveVisibility),
@@ -32,7 +32,7 @@ public static class ResponsiveVisibility
     {
         double breakpoint = GetBreakpoint(element);
         element.Visibility = windowWidth <= breakpoint
-            ? GetMobileVisibility(element)
-            : GetDesktopVisibility(element);
+            ? GetMobile(element)
+            : GetDesktop(element);
     }
 }

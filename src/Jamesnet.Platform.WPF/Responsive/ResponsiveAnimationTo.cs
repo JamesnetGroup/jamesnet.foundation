@@ -5,17 +5,17 @@ namespace Jamesnet.Platform.Wpf.Responsive;
 
 public static class ResponsiveAnimationTo
 {
-    public static readonly DependencyProperty DesktopToProperty =
-        DependencyProperty.RegisterAttached("DesktopTo", typeof(double), typeof(ResponsiveAnimationTo),
+    public static readonly DependencyProperty DesktopProperty =
+        DependencyProperty.RegisterAttached("Desktop", typeof(double), typeof(ResponsiveAnimationTo),
             new PropertyMetadata(double.NaN, OnPropertyChanged));
-    public static double GetDesktopTo(DependencyObject obj) => (double)obj.GetValue(DesktopToProperty);
-    public static void SetDesktopTo(DependencyObject obj, double value) => obj.SetValue(DesktopToProperty, value);
+    public static double GetDesktop(DependencyObject obj) => (double)obj.GetValue(DesktopProperty);
+    public static void SetDesktop(DependencyObject obj, double value) => obj.SetValue(DesktopProperty, value);
 
-    public static readonly DependencyProperty MobileToProperty =
-        DependencyProperty.RegisterAttached("MobileTo", typeof(double), typeof(ResponsiveAnimationTo),
+    public static readonly DependencyProperty MobileProperty =
+        DependencyProperty.RegisterAttached("Mobile", typeof(double), typeof(ResponsiveAnimationTo),
             new PropertyMetadata(double.NaN, OnPropertyChanged));
-    public static double GetMobileTo(DependencyObject obj) => (double)obj.GetValue(MobileToProperty);
-    public static void SetMobileTo(DependencyObject obj, double value) => obj.SetValue(MobileToProperty, value);
+    public static double GetMobile(DependencyObject obj) => (double)obj.GetValue(MobileProperty);
+    public static void SetMobile(DependencyObject obj, double value) => obj.SetValue(MobileProperty, value);
 
     public static readonly DependencyProperty BreakpointProperty =
         DependencyProperty.RegisterAttached("Breakpoint", typeof(double), typeof(ResponsiveAnimationTo),
@@ -59,11 +59,11 @@ public static class ResponsiveAnimationTo
 
         double windowWidth = window.ActualWidth;
         double breakpoint = GetBreakpoint(animation);
-        double desktopTo = GetDesktopTo(animation);
-        double mobileTo = GetMobileTo(animation);
+        double desktop = GetDesktop(animation);
+        double mobile = GetMobile(animation);
 
         animation.To = windowWidth <= breakpoint
-            ? (!double.IsNaN(mobileTo) ? mobileTo : desktopTo)
-            : (!double.IsNaN(desktopTo) ? desktopTo : mobileTo);
+            ? (!double.IsNaN(mobile) ? mobile : desktop)
+            : (!double.IsNaN(desktop) ? desktop : mobile);
     }
 }

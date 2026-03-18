@@ -5,17 +5,17 @@ namespace Jamesnet.Platform.Wpf.Responsive;
 
 public static class ResponsiveFontWeight
 {
-    public static readonly DependencyProperty DesktopFontWeightProperty =
-        DependencyProperty.RegisterAttached("DesktopFontWeight", typeof(FontWeight?), typeof(ResponsiveFontWeight),
+    public static readonly DependencyProperty DesktopProperty =
+        DependencyProperty.RegisterAttached("Desktop", typeof(FontWeight?), typeof(ResponsiveFontWeight),
             new PropertyMetadata(null, OnPropertyChanged));
-    public static FontWeight? GetDesktopFontWeight(DependencyObject obj) => (FontWeight?)obj.GetValue(DesktopFontWeightProperty);
-    public static void SetDesktopFontWeight(DependencyObject obj, FontWeight? value) => obj.SetValue(DesktopFontWeightProperty, value);
+    public static FontWeight? GetDesktop(DependencyObject obj) => (FontWeight?)obj.GetValue(DesktopProperty);
+    public static void SetDesktop(DependencyObject obj, FontWeight? value) => obj.SetValue(DesktopProperty, value);
 
-    public static readonly DependencyProperty MobileFontWeightProperty =
-        DependencyProperty.RegisterAttached("MobileFontWeight", typeof(FontWeight?), typeof(ResponsiveFontWeight),
+    public static readonly DependencyProperty MobileProperty =
+        DependencyProperty.RegisterAttached("Mobile", typeof(FontWeight?), typeof(ResponsiveFontWeight),
             new PropertyMetadata(null, OnPropertyChanged));
-    public static FontWeight? GetMobileFontWeight(DependencyObject obj) => (FontWeight?)obj.GetValue(MobileFontWeightProperty);
-    public static void SetMobileFontWeight(DependencyObject obj, FontWeight? value) => obj.SetValue(MobileFontWeightProperty, value);
+    public static FontWeight? GetMobile(DependencyObject obj) => (FontWeight?)obj.GetValue(MobileProperty);
+    public static void SetMobile(DependencyObject obj, FontWeight? value) => obj.SetValue(MobileProperty, value);
 
     public static readonly DependencyProperty BreakpointProperty =
         DependencyProperty.RegisterAttached("Breakpoint", typeof(double), typeof(ResponsiveFontWeight),
@@ -33,8 +33,8 @@ public static class ResponsiveFontWeight
     {
         double breakpoint = GetBreakpoint(element);
         var target = windowWidth <= breakpoint
-            ? GetMobileFontWeight(element)
-            : GetDesktopFontWeight(element);
+            ? GetMobile(element)
+            : GetDesktop(element);
 
         if (element is Control c)
         {
