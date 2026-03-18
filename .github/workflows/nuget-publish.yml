@@ -18,10 +18,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Pack Foundation
-        run: dotnet pack src/Jamesnet.Foundation/Jamesnet.Foundation.csproj -c Release --no-build-check
+        run: dotnet pack src/Jamesnet.Foundation/Jamesnet.Foundation.csproj -c Release
 
       - name: Pack Platform.WPF
-        run: dotnet pack src/Jamesnet.Platform.WPF/Jamesnet.Platform.WPF.csproj -c Release --no-build-check
+        run: dotnet pack src/Jamesnet.Platform.WPF/Jamesnet.Platform.WPF.csproj -c Release
 
       - name: Push to NuGet
         run: |
