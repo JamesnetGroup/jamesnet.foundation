@@ -508,3 +508,18 @@ Codex는 보고서를 검토할 때 다음을 확인한다.
 - 마이그레이션 문서 완료
 - 사용자의 명시적 배포 승인
 
+## 15. CI 워크플로 설치
+
+검증 워크플로 원본은 다음 템플릿에 있다.
+
+```text
+build/workflows/unified-nuget-validation.template.yml
+```
+
+현재 macOS Git 인증 토큰에는 GitHub Actions workflow 수정 권한이 없으므로 템플릿 형태로 보관한다. `workflow` 권한이 있는 Git 클라이언트에서 다음 위치로 복사하고 커밋한다.
+
+```text
+.github/workflows/unified-nuget-validation.yml
+```
+
+이 워크플로는 Windows에서 빌드·패킹·패키지 구조 검사와 artifact 업로드만 수행한다. NuGet.org 게시 단계는 포함하지 않는다.

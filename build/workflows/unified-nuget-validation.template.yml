@@ -1,0 +1,113 @@
+# Copy this file to .github/workflows/unified-nuget-validation.yml from an
+# authenticated Git client that has GitHub's workflow scope.
+name: Unified NuGet Validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/unified-nuget-validation.yml'
+      - 'build/**'
+      - 'src/Jamesnet.Foundation/**'
+      - 'src/Jamesnet.Platform.WPF/**'
+      - 'src/Jamesnet.Platform.OpenSilver/**'
+      - 'src/Jamesnet.Platform.WinUI3/**'
+      - 'src/Jamesnet.Platform.UWP/**'
+  push:
+    branches:
+      - 'feat/unified-foundation-nuget'
+      - 'feat/unified-foundation-ci'
+    paths:
+      - '.github/workflows/unified-nuget-validation.yml'
+      - 'build/**'
+      - 'src/Jamesnet.Foundation/**'
+      - 'src/Jamesnet.Platform.WPF/**'
+      - 'src/Jamesnet.Platform.OpenSilver/**'
+      - 'src/Jamesnet.Platform.WinUI3/**'
+      - 'src/Jamesnet.Platform.UWP/**'
+
+permissions:
+  contents: read
+
+jobs:
+  build-pack-validate:
+    name: Build and validate single package
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Set up .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Set up NuGet CLI
+        uses: NuGet/setup-nuget@v2
+        with:
+          nuget-version: latest
+
+      - name: Capture build environment
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts/validation | Out-Null
+          dotnet --info | Tee-Object artifacts/validation/dotnet-info.txt
+          msbuild -version | Tee-Object artifacts/validation/msbuild-version.txt
+          nuget help | Select-Object -First 2 |
+            Tee-Object artifacts/validation/nuget-version.txt
+
+      - name: Build and assemble unified package
+        shell: pwsh
+        run: |
+          $version = "10.0.0-ci.${{ github.run_number }}"
+          ./build/pack-single.ps1 `
+            -Version $version `
+            -OutputDirectory artifacts/packages
+          "PACKAGE_VERSION=$version" |
+            Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Validate package structure
+        shell: pwsh
+        run: |
+          $package = "artifacts/packages/Jamesnet.Foundation.$env:PACKAGE_VERSION.nupkg"
+          ./build/test-single-package.ps1 -PackagePath $package |
+            Tee-Object artifacts/validation/package-validation.txt
+          Get-FileHash $package -Algorithm SHA256 |
+            Format-List |
+            Out-File artifacts/validation/package-sha256.txt
+
+      - name: Record package contents
+        shell: pwsh
+        run: |
+          $package = "artifacts/packages/Jamesnet.Foundation.$env:PACKAGE_VERSION.nupkg"
+          $inspect = "artifacts/validation/package-contents"
+          Expand-Archive -Path $package -DestinationPath $inspect -Force
+          Get-ChildItem -Recurse -File $inspect |
+            ForEach-Object {
+              $_.FullName.Substring(
+                (Resolve-Path $inspect).Path.Length + 1
+              ).Replace('\', '/')
+            } |
+            Sort-Object |
+            Out-File artifacts/validation/package-file-list.txt
+
+      - name: Upload package and validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unified-foundation-${{ github.sha }}
+          path: |
+            artifacts/packages/*.nupkg
+            artifacts/validation/**
+          if-no-files-found: warn
+          retention-days: 14
