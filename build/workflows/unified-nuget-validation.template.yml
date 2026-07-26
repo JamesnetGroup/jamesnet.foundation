@@ -86,6 +86,15 @@ jobs:
             Format-List |
             Out-File artifacts/validation/package-sha256.txt
 
+      - name: Validate consumer asset selection
+        shell: pwsh
+        run: |
+          $package = "artifacts/packages/Jamesnet.Foundation.$env:PACKAGE_VERSION.nupkg"
+          ./build/test-package-consumers.ps1 `
+            -PackagePath $package `
+            -EvidenceDirectory artifacts/validation/consumer-assets |
+            Tee-Object artifacts/validation/consumer-validation.txt
+
       - name: Record package contents
         shell: pwsh
         run: |

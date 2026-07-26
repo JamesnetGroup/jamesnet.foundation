@@ -347,6 +347,16 @@ Copy-Item $PackagePath $LocalFeed
 
 각 소비 앱에서 restore 후 `obj/project.assets.json`을 보관한다.
 
+통합 패키지 자동 검사는 다음 스크립트를 사용한다.
+
+```powershell
+./build/test-package-consumers.ps1 `
+    -PackagePath path\to\Jamesnet.Foundation.10.0.0-preview.1.nupkg `
+    -EvidenceDirectory artifacts\validation\consumer-assets
+```
+
+이 스크립트는 임시 WPF/OpenSilver/WinUI 3 소비 프로젝트를 만들고 restore한 뒤, 각 `project.assets.json`에 필요한 구현만 선택되었는지 검사한다. UWP는 구형 프로젝트 시스템과 Windows SDK가 필요하므로 별도 Smoke App 단계에서 검증한다.
+
 검사 목표:
 
 - WPF: WPF 구현만 선택

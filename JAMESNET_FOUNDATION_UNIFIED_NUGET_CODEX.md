@@ -571,6 +571,7 @@ macOS에서 수행할 수 없는 WPF, WinUI 3, UWP 빌드와 실제 실행 검�
 
 - [Windows 빌드·검증 지침](./WINDOWS_VALIDATION_GUIDE_CODEX.md)
 - [Windows 검증 보고서 템플릿](./WINDOWS_VALIDATION_REPORT_TEMPLATE_CODEX.md)
+- [단일 NuGet 진행 기록](./UNIFIED_NUGET_PROGRESS_CODEX.md)
 
 Windows 검증자는 템플릿을 `reports/windows-validation/YYYY-MM-DD-<commit-short-sha>.md`로 복사해 작성한다. Codex는 커밋 SHA, 환경, 명령, 종료 코드, 패키지 자산 선택 및 실행 결과를 기준으로 보고서를 검토한다.
 
