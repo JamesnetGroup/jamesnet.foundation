@@ -85,3 +85,13 @@
 5. WinUI 3/UWP 최소 실행 샘플 추가
 6. OpenSilver 의존성 격리 방안 PoC
 
+### WPF 우선 PoC 추가
+
+다른 Windows PC에서 즉시 기존 `Jamesnet.Foundation` + `Jamesnet.Platform.Wpf` 소비 프로젝트를 시험할 수 있도록 WPF 전용 로컬 패키징 경로를 추가한다.
+
+- `build/Jamesnet.Foundation.WpfPoC.nuspec`
+- `build/pack-wpf-poc.ps1`
+- `build/test-wpf-poc.ps1`
+- `WPF_POC_QUICKSTART_CODEX.md`
+
+이 PoC도 패키지 ID는 `Jamesnet.Foundation` 하나이며, 패키지 내부에 Foundation과 WPF DLL을 함께 넣는다. 전체 4플랫폼 패키지가 Windows CI에서 안정화되기 전에 WPF 사용 경험과 호환성을 먼저 검증하기 위한 단계다.

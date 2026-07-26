@@ -318,7 +318,11 @@ Get-FileHash path\to\Jamesnet.Foundation.10.0.0-preview.1.nupkg `
 ```powershell
 $PackagePath = 'path\to\Jamesnet.Foundation.10.0.0-preview.1.nupkg'
 $InspectPath = Join-Path $ResultRoot 'package-inspection'
-Expand-Archive -Path $PackagePath -DestinationPath $InspectPath -Force
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::ExtractToDirectory(
+    $PackagePath,
+    $InspectPath
+)
 Get-ChildItem -Recurse $InspectPath |
     Select-Object FullName, Length
 ```

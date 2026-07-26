@@ -85,7 +85,11 @@ try {
     Copy-Item $ResolvedPackagePath $LocalFeed
 
     $InspectionPath = Join-Path $TemporaryRoot 'package'
-    Expand-Archive -Path $ResolvedPackagePath -DestinationPath $InspectionPath
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory(
+        $ResolvedPackagePath,
+        $InspectionPath
+    )
     $Manifest = Get-ChildItem $InspectionPath -Filter '*.nuspec' -File |
         Select-Object -First 1
     if ($null -eq $Manifest) {

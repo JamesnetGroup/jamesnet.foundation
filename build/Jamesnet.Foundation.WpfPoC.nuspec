@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Jamesnet.Foundation</id>
+    <version>$version$</version>
+    <authors>Jaewung Lee, Yang Qu</authors>
+    <owners>JamesnetGroup</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">LICENSE</license>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/JamesnetGroup/jamesnet.foundation</projectUrl>
+    <repository type="git" url="https://github.com/JamesnetGroup/jamesnet.foundation" commit="$commit$" />
+    <description>WPF proof of concept for the unified Jamesnet.Foundation package.</description>
+    <releaseNotes>Local WPF validation package. Do not publish to NuGet.org.</releaseNotes>
+    <copyright>Copyright © 2025 JamesnetGroup</copyright>
+    <tags>jamesnet xaml wpf mvvm proof-of-concept</tags>
+    <dependencies>
+      <group targetFramework="net8.0-windows">
+        <dependency id="System.Text.Json" version="8.0.5" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="LICENSE" target="" />
+    <file src="README.md" target="" />
+    <file src="src\Jamesnet.Foundation\bin\Release\netstandard2.0\Jamesnet.Foundation.dll" target="lib\net8.0-windows" />
+    <file src="src\Jamesnet.Platform.WPF\bin\Release\net8.0-windows\Jamesnet.Platform.WPF.dll" target="lib\net8.0-windows" />
+  </files>
+</package>

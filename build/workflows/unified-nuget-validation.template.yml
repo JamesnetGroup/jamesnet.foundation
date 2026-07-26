@@ -100,7 +100,11 @@ jobs:
         run: |
           $package = "artifacts/packages/Jamesnet.Foundation.$env:PACKAGE_VERSION.nupkg"
           $inspect = "artifacts/validation/package-contents"
-          Expand-Archive -Path $package -DestinationPath $inspect -Force
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          [System.IO.Compression.ZipFile]::ExtractToDirectory(
+            $package,
+            $inspect
+          )
           Get-ChildItem -Recurse -File $inspect |
             ForEach-Object {
               $_.FullName.Substring(

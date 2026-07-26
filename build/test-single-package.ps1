@@ -27,7 +27,11 @@ $ExpectedEntries = @(
 
 try {
     New-Item -ItemType Directory -Force -Path $TemporaryRoot | Out-Null
-    Expand-Archive -Path $ResolvedPackagePath -DestinationPath $TemporaryRoot -Force
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory(
+        $ResolvedPackagePath,
+        $TemporaryRoot
+    )
 
     $Entries = @(
         Get-ChildItem -Path $TemporaryRoot -Recurse -File |
