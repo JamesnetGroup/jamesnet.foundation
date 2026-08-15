@@ -1,7 +1,20 @@
-﻿using System.Windows;
+#if WINUI3 || UNO
+using Microsoft.UI.Xaml;
+#elif UWP
+using Windows.UI.Xaml;
+#else // WPF, OPENSILVER
+using System.Windows;
+#endif
+#if WPF
+using Jamesnet.Platform.Wpf.Responsive;
+#endif
 
-namespace Jamesnet.Platform.OpenSilver.Responsive;
+namespace Jamesnet.Foundation.Responsive;
 
+/// <summary>
+/// 창 너비가 Breakpoint 이하이면 Mobile, 아니면 Desktop Height를 적용하는
+/// 플랫폼 중립 attached property. 소스는 이 파일 한 벌이고 각 flavor가 컴파일한다.
+/// </summary>
 public static class ResponsiveHeight
 {
     public static readonly DependencyProperty DesktopProperty =
@@ -27,21 +40,47 @@ public static class ResponsiveHeight
 
     private static void OnHeightChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is FrameworkElement element)
+        if (d is not FrameworkElement element)
         {
-            if (!IsHandlerRegistered(element))
-            {
-                Window.Current.SizeChanged += (s, args) => UpdateHeight(element);
-                element.Loaded += (s, args) => UpdateHeight(element);
-                RegisterHandler(element);
-            }
-            UpdateHeight(element);
+            return;
         }
+
+#if WPF
+        // WPF는 Window.GetWindow 기반의 ResponsiveHelper가 구독/해제를 관리한다.
+        ResponsiveHelper.Register(element, UpdateHeight);
+#else
+        if (!IsHandlerRegistered(element))
+        {
+            Window.Current.SizeChanged += (s, args) => UpdateHeight(element);
+            element.Loaded += (s, args) => UpdateHeight(element);
+            RegisterHandler(element);
+        }
+        UpdateHeight(element);
+#endif
     }
 
+#if WPF
+    private static void UpdateHeight(FrameworkElement element, double windowWidth)
+    {
+        ApplyHeight(element, windowWidth);
+    }
+#else
     private static void UpdateHeight(FrameworkElement element)
     {
-        double windowWidth = Window.Current.Bounds.Width;
+        ApplyHeight(element, Window.Current.Bounds.Width);
+    }
+
+    // 이벤트 중복 등록 방지
+    private static readonly DependencyProperty IsHandlerRegisteredProperty =
+        DependencyProperty.RegisterAttached("IsHandlerRegistered", typeof(bool), typeof(ResponsiveHeight),
+            new PropertyMetadata(false));
+
+    private static bool IsHandlerRegistered(DependencyObject obj) => (bool)obj.GetValue(IsHandlerRegisteredProperty);
+    private static void RegisterHandler(DependencyObject obj) => obj.SetValue(IsHandlerRegisteredProperty, true);
+#endif
+
+    private static void ApplyHeight(FrameworkElement element, double windowWidth)
+    {
         double breakpoint = GetBreakpoint(element);
         double defaultHeight = GetDesktop(element);
         double mobileHeight = GetMobile(element);
@@ -61,11 +100,4 @@ public static class ResponsiveHeight
                 element.ClearValue(FrameworkElement.HeightProperty);
         }
     }
-
-    private static readonly DependencyProperty IsHandlerRegisteredProperty =
-        DependencyProperty.RegisterAttached("IsHandlerRegistered", typeof(bool), typeof(ResponsiveHeight),
-            new PropertyMetadata(false));
-
-    private static bool IsHandlerRegistered(DependencyObject obj) => (bool)obj.GetValue(IsHandlerRegisteredProperty);
-    private static void RegisterHandler(DependencyObject obj) => obj.SetValue(IsHandlerRegisteredProperty, true);
 }

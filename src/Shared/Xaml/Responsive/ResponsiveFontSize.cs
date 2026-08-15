@@ -1,8 +1,24 @@
-﻿using System.Windows;
+#if WINUI3 || UNO
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+#elif UWP
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+#else // WPF, OPENSILVER
+using System.Windows;
 using System.Windows.Controls;
+#endif
+#if WPF
+using Jamesnet.Platform.Wpf.Responsive;
+#endif
 
-namespace Jamesnet.Platform.OpenSilver.Responsive;
+namespace Jamesnet.Foundation.Responsive;
 
+/// <summary>
+/// 창 너비가 Breakpoint 이하이면 Mobile, 아니면 Desktop FontSize를 적용하는
+/// 플랫폼 중립 attached property. Control과 TextBlock에 붙일 수 있다.
+/// 소스는 이 파일 한 벌이고 각 flavor가 컴파일한다.
+/// </summary>
 public static class ResponsiveFontSize
 {
     public static readonly DependencyProperty DesktopProperty =
@@ -28,24 +44,47 @@ public static class ResponsiveFontSize
 
     private static void OnFontSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is Control control || d is TextBlock)
+        if (d is not FrameworkElement element || (element is not Control && element is not TextBlock))
         {
-            if (!IsHandlerRegistered(d))
-            {
-                Window.Current.SizeChanged += (s, args) => UpdateFontSize(d);
-                if (d is FrameworkElement element)
-                {
-                    element.Loaded += (s, args) => UpdateFontSize(d);
-                }
-                RegisterHandler(d);
-            }
-            UpdateFontSize(d);
+            return;
         }
+
+#if WPF
+        // WPF는 Window.GetWindow 기반의 ResponsiveHelper가 구독/해제를 관리한다.
+        ResponsiveHelper.Register(element, UpdateFontSize);
+#else
+        if (!IsHandlerRegistered(element))
+        {
+            Window.Current.SizeChanged += (s, args) => UpdateFontSize(element);
+            element.Loaded += (s, args) => UpdateFontSize(element);
+            RegisterHandler(element);
+        }
+        UpdateFontSize(element);
+#endif
     }
 
-    private static void UpdateFontSize(DependencyObject element)
+#if WPF
+    private static void UpdateFontSize(FrameworkElement element, double windowWidth)
     {
-        double windowWidth = Window.Current.Bounds.Width;
+        ApplyFontSize(element, windowWidth);
+    }
+#else
+    private static void UpdateFontSize(FrameworkElement element)
+    {
+        ApplyFontSize(element, Window.Current.Bounds.Width);
+    }
+
+    // 이벤트 중복 등록 방지
+    private static readonly DependencyProperty IsHandlerRegisteredProperty =
+        DependencyProperty.RegisterAttached("IsHandlerRegistered", typeof(bool), typeof(ResponsiveFontSize),
+            new PropertyMetadata(false));
+
+    private static bool IsHandlerRegistered(DependencyObject obj) => (bool)obj.GetValue(IsHandlerRegisteredProperty);
+    private static void RegisterHandler(DependencyObject obj) => obj.SetValue(IsHandlerRegisteredProperty, true);
+#endif
+
+    private static void ApplyFontSize(DependencyObject element, double windowWidth)
+    {
         double breakpoint = GetBreakpoint(element);
         double defaultFontSize = GetDesktop(element);
         double mobileFontSize = GetMobile(element);
@@ -85,11 +124,4 @@ public static class ResponsiveFontSize
             }
         }
     }
-
-    private static readonly DependencyProperty IsHandlerRegisteredProperty =
-        DependencyProperty.RegisterAttached("IsHandlerRegistered", typeof(bool), typeof(ResponsiveFontSize),
-            new PropertyMetadata(false));
-
-    private static bool IsHandlerRegistered(DependencyObject obj) => (bool)obj.GetValue(IsHandlerRegisteredProperty);
-    private static void RegisterHandler(DependencyObject obj) => obj.SetValue(IsHandlerRegisteredProperty, true);
 }
