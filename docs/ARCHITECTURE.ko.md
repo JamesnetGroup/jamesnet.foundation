@@ -131,7 +131,7 @@ Uno는 `UseWinUI`도 함께 켜므로, targets 파일에서 **Uno 판정이 WinU
 
 ## 4. 소비자가 보는 모습
 
-플랫폼과 무관하게 완전히 동일하다.
+### C# — 플랫폼과 무관하게 완전히 동일
 
 ```xml
 <PackageReference Include="Jamesnet.Foundation" Version="10.0.0" />
@@ -146,6 +146,28 @@ public class MainViewModel : ViewModelBase { }
 
 WPF 프로젝트에서든 OpenSilver 프로젝트에서든 **위 코드를 그대로 복사해서 쓸 수 있다.**
 빌드 시점에 자기 플랫폼 DLL이 자동으로 선택된다.
+
+### XAML — 어셈블리명이 드러나지 않는다
+
+XAML은 플랫폼 계열에 따라 문법 자체가 다르기 때문에 한 형태로 완전히 통일할 수는 없다.
+다만 **양쪽 모두 어셈블리명을 적지 않으므로**, 플랫폼을 옮겨도 고칠 것이 없다.
+
+| 계열 | 선언 |
+|---|---|
+| WPF, OpenSilver | `xmlns:james="http://jamesnet.dev/xaml"` |
+| Uno, WinUI3, UWP | `xmlns:james="using:Jamesnet.Foundation"` |
+
+```xml
+<james:XamlLayer LayerName="Main" />
+```
+
+WPF와 OpenSilver의 `clr-namespace` 문법은 원래 `assembly=`를 함께 요구한다.
+이를 감추기 위해 `XmlnsDefinition`으로 URI 하나에 묶었고, `Jamesnet.Platform.*`에
+남아 있는 9.x 시절 타입들(`AnimatedWPFLayer`, Docking 등)도 같은 URI로 함께 노출된다.
+
+Uno·WinUI3·UWP의 `using:` 문법은 애초에 어셈블리명을 요구하지 않는다. 이 계열에서는
+`XmlnsDefinitionAttribute`가 internal이라 소비자가 붙일 수 없고 XAML 컴파일러도
+참조하지 않으므로, `XmlnsDefinition`을 적용하지 않는다.
 
 ## 5. 원칙
 
@@ -195,14 +217,14 @@ UWP는 레거시 non-SDK 프로젝트라 `dotnet build`로 빌드할 수 없다.
 - `WPFLayer`, `OpenSilverLayer`, `UnoLayer`, `WinUI3Layer`, `UwpLayer`는
   `XamlLayer`로 대체한다. 기존 이름은 `[Obsolete]` 별칭으로 남아 있어 당장은
   동작하지만, 다음 메이저 버전에서 제거된다.
-- XAML의 `assembly=Jamesnet.Platform.Wpf` 같은 선언은
-  `assembly=Jamesnet.Foundation`으로 바꾼다.
+- XAML 선언을 바꾼다. WPF·OpenSilver는
+  `clr-namespace:Jamesnet.Platform.Wpf;assembly=Jamesnet.Platform.Wpf` 대신
+  `http://jamesnet.dev/xaml`을, Uno·WinUI3·UWP는 `using:Jamesnet.Foundation`을 쓴다.
 - 타겟 프레임워크를 .NET 10으로 올린다.
 
-## 9. 남은 일
+## 9. 앞으로
 
-- `Responsive` 계열이 아직 플랫폼별로 흩어져 있다
-  (OpenSilver 11종 / WPF 5종 / Uno·WinUI3 각 1종 / UWP 0종).
-  `Shared/`로 올리면 모든 플랫폼이 동시에 전체 기능을 갖게 된다.
-- `RecursiveControl`, `CustomWrapPanel`도 플랫폼별 중복이 남아 있다.
-- AvaloniaUI, MAUI flavor 추가.
+남은 작업과 우선순위는 [ROADMAP.ko.md](ROADMAP.ko.md)에 정리되어 있다.
+가장 큰 항목은 `Responsive` 계열 통합으로, 현재 OpenSilver 12종 / WPF 5종 /
+Uno·WinUI3 각 1종 / UWP 0종으로 어긋나 있는 것을 `Shared/`로 올려 모든 플랫폼이
+동시에 전체 기능을 갖게 하는 일이다.
