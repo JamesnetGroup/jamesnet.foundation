@@ -21,6 +21,7 @@ using System.Windows.Markup;
 
 [assembly: XmlnsPrefix(Jamesnet.Foundation.XamlNamespace.Uri, "james")]
 [assembly: XmlnsDefinition(Jamesnet.Foundation.XamlNamespace.Uri, "Jamesnet.Foundation")]
+[assembly: XmlnsDefinition(Jamesnet.Foundation.XamlNamespace.Uri, "Jamesnet.Foundation.Responsive")]
 
 // 9.x 시절의 플랫폼별 네임스페이스에 남아 있는 타입들(AnimatedLayer, Docking 등)도
 // 같은 URI로 함께 노출한다. 소비자는 이 둘을 구분할 필요가 없다.

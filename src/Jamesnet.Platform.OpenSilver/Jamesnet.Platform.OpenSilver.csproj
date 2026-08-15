@@ -37,7 +37,6 @@
     <Compile Include="Responsive\ResponsiveHeight.cs" />
     <Compile Include="Responsive\ResponsiveMargin.cs" />
     <Compile Include="Responsive\ResponsiveMinHeight.cs" />
-    <Compile Include="Responsive\ResponsiveVisibility.cs" />
     <Compile Include="Responsive\ResponsiveWidth.cs" />
     <Compile Include="Scripts\DeviceInfo.cs" />
   </ItemGroup>
