@@ -1,0 +1,40 @@
+<Project>
+
+  <!--
+    Jamesnet.Foundation은 플랫폼마다 다른 어셈블리를 담고 있지만 패키지는 하나다.
+    NuGet의 TFM 해석만으로는 OpenSilver와 Uno를 구분할 수 없으므로(둘 다 net10.0),
+    소비 프로젝트의 MSBuild 속성을 보고 여기서 직접 flavor를 고른다.
+
+    소비자가 <JamesnetFlavor>를 직접 지정하면 자동 판별보다 우선한다.
+  -->
+
+  <PropertyGroup Condition="'$(JamesnetFlavor)' == ''">
+    <JamesnetFlavor Condition="'$(TargetPlatformIdentifier)' == 'UAP'">uwp</JamesnetFlavor>
+    <JamesnetFlavor Condition="'$(UseWPF)' == 'true'">wpf</JamesnetFlavor>
+    <JamesnetFlavor Condition="'$(OpenSilverType)' != ''">opensilver</JamesnetFlavor>
+    <!-- Uno도 UseWinUI를 켜므로 Uno 판정이 WinUI3보다 뒤에 와서 이겨야 한다. -->
+    <JamesnetFlavor Condition="'$(UseWinUI)' == 'true'">winui3</JamesnetFlavor>
+    <JamesnetFlavor Condition="'$(UnoSingleProject)' == 'true'">uno</JamesnetFlavor>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <_JamesnetFlavorDir>$(MSBuildThisFileDirectory)..\flavors\$(JamesnetFlavor)\</_JamesnetFlavorDir>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(JamesnetFlavor)' != ''">
+    <Reference Include="Jamesnet.Foundation">
+      <HintPath>$(_JamesnetFlavorDir)Jamesnet.Foundation.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="JamesnetFlavorCheck" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="'$(JamesnetFlavor)' == ''"
+           Code="JAMESNET001"
+           Text="Jamesnet.Foundation: 대상 플랫폼을 자동으로 판별하지 못했습니다. csproj에 &lt;JamesnetFlavor&gt;wpf&lt;/JamesnetFlavor&gt; 처럼 직접 지정하세요. 사용 가능한 값: wpf, opensilver, winui3, uno, uwp" />
+    <Error Condition="'$(JamesnetFlavor)' != '' AND !Exists('$(_JamesnetFlavorDir)Jamesnet.Foundation.dll')"
+           Code="JAMESNET002"
+           Text="Jamesnet.Foundation: 이 패키지에는 '$(JamesnetFlavor)' flavor가 담겨 있지 않습니다. 사용 가능한 값: wpf, opensilver, winui3, uno, uwp" />
+  </Target>
+
+</Project>

@@ -1,27 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>12</LangVersion>
+    <LangVersion>13</LangVersion>
     <EnableDefaultItems>false</EnableDefaultItems>
     <DefineSilverlight>true</DefineSilverlight>
     <OpenSilverType>7</OpenSilverType>
-    <Version>9.1.13.2</Version>
-    <Authors>Jaewung Lee, Yang Qu</Authors>
-    <Product>Jamesnet.Platform.OpenSilver</Product>
-    <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
-    <PackageProjectUrl>https://github.com/jamesnetgroup/jamesnet.foundation</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/jamesnetgroup/jamesnet.foundation</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>jamesnet,xaml,wpf,opensilver,uno-platform,winui3,uwp</PackageTags>
-    <Description>XAML-Based Cross-Platform</Description>
+
+    <AssemblyName>Jamesnet.Foundation</AssemblyName>
+    <RootNamespace>Jamesnet.Foundation</RootNamespace>
+    <Version>$(JamesnetVersion)</Version>
+    <Product>Jamesnet.Foundation</Product>
+    <IsPackable>false</IsPackable>
+
+    <DefineConstants>$(DefineConstants);OPENSILVER</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenSilver" Version="3.2.0" />
+    <PackageReference Include="OpenSilver" Version="3.3.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\**\*.cs" LinkBase="Shared" Exclude="..\Shared\Core\InjectAttribute.cs" />
     <Compile Include="AnimatedOpenSilverLayer.cs" />
     <Compile Include="ContentCase.cs" />
     <Compile Include="IMobileView.cs" />
@@ -46,10 +46,6 @@
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Jamesnet.Foundation\Jamesnet.Foundation.csproj" />
   </ItemGroup>
 
 </Project>

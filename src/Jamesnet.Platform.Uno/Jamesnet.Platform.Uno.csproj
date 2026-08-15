@@ -1,25 +1,24 @@
 <Project Sdk="Uno.Sdk">
+
   <PropertyGroup>
-    <TargetFrameworks>net9.0-desktop</TargetFrameworks>
+    <TargetFrameworks>net10.0-desktop</TargetFrameworks>
     <UnoSingleProject>true</UnoSingleProject>
     <OutputType>Library</OutputType>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>Jamesnet.Platform.Uno</PackageId>
-    <Version>9.1.13</Version>
-    <Authors>Jaewung Lee, Yang Qu</Authors>
-    <Product>Jamesnet.Platform.Uno</Product>
-    <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
-    <PackageProjectUrl>https://github.com/jamesnetgroup/jamesnet.foundation</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/jamesnetgroup/jamesnet.foundation</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>jamesnet,xaml,wpf,opensilver,uno-platform,winui3,uwp</PackageTags>
-    <Description>XAML-Based Cross-Platform</Description>
-    <GenerateLibraryLayout>true</GenerateLibraryLayout>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
+    <GenerateLibraryLayout>true</GenerateLibraryLayout>
+
+    <AssemblyName>Jamesnet.Foundation</AssemblyName>
+    <RootNamespace>Jamesnet.Foundation</RootNamespace>
+    <Version>$(JamesnetVersion)</Version>
+    <Product>Jamesnet.Foundation</Product>
+    <IsPackable>false</IsPackable>
+
+    <DefineConstants>$(DefineConstants);UNO</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jamesnet.Foundation\Jamesnet.Foundation.csproj" />
+    <Compile Include="..\Shared\**\*.cs" LinkBase="Shared" Exclude="..\Shared\Core\InjectAttribute.cs" />
   </ItemGroup>
+
 </Project>

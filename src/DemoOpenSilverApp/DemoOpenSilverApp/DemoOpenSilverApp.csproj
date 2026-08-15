@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenSilver" Version="3.2.0" />
-    <PackageReference Include="OpenSilver.Themes.Modern" Version="3.2.*" />
+    <PackageReference Include="OpenSilver" Version="3.3.3" />
+    <PackageReference Include="OpenSilver.Themes.Modern" Version="3.3.*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Jamesnet.Foundation\Jamesnet.Foundation.csproj" />
+    <!-- Jamesnet.Foundation 코어는 이제 각 flavor 어셈블리에 함께 담겨 있어 별도 참조가 필요 없다. -->
     <ProjectReference Include="..\..\Jamesnet.Platform.OpenSilver\Jamesnet.Platform.OpenSilver.csproj" />
   </ItemGroup>
 

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:based="clr-namespace:Jamesnet.Platform.Wpf;assembly=Jamesnet.Platform.Wpf"
+        xmlns:based="clr-namespace:Jamesnet.Platform.Wpf;assembly=Jamesnet.Foundation"
         xmlns:local="clr-namespace:DemoWpfApp"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Background="Black">

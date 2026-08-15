@@ -1,0 +1,15 @@
+<Project>
+
+  <!-- 모든 flavor가 공유하는 패키지 메타데이터와 버전. 버전은 여기 한 곳에서만 바꾼다. -->
+  <PropertyGroup>
+    <JamesnetVersion>10.0.0</JamesnetVersion>
+    <Authors>Jaewung Lee, Yang Qu</Authors>
+    <Copyright>Copyright © 2026 JamesnetGroup</Copyright>
+    <PackageProjectUrl>https://github.com/jamesnetgroup/jamesnet.foundation</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jamesnetgroup/jamesnet.foundation</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>jamesnet;xaml;wpf;opensilver;uno-platform;winui3;mvvm</PackageTags>
+    <Description>XAML-Based Cross-Platform</Description>
+  </PropertyGroup>
+
+</Project>

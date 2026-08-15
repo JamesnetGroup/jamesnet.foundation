@@ -1,40 +1,12 @@
+using System;
 using Jamesnet.Foundation;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace Jamesnet.Platform.OpenSilver;
 
-public class OpenSilverLayer : UserControl, ILayer
+/// <summary>
+/// 9.x 호환용 별칭. 구현은 <see cref="XamlLayer"/> 한 곳에만 있다.
+/// </summary>
+[Obsolete("Jamesnet.Foundation.XamlLayer를 사용하세요. OpenSilverLayer는 다음 메이저 버전에서 제거됩니다.")]
+public class OpenSilverLayer : XamlLayer
 {
-    public static readonly DependencyProperty LayerNameProperty =
-        DependencyProperty.Register(nameof(LayerName), typeof(string), typeof(OpenSilverLayer), new PropertyMetadata(null, OnLayerNameChanged));
-
-    public bool IsRegistered { get; set; }
-
-    public string LayerName
-    {
-        get => (string)GetValue(LayerNameProperty);
-        set => SetValue(LayerNameProperty, value);
-    }
-
-    public object UIContent
-    {
-        get=> (object)Content;
-        set => Content = (UIElement)value;
-    }
-
-    public OpenSilverLayer()
-    {
-        DefaultStyleKey = typeof(OpenSilverLayer);
-        LayerManager.InitializeLayer(this);
-    }
-
-    private static void OnLayerNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is OpenSilverLayer layer)
-        {
-            layer.IsRegistered = false;
-            LayerManager.RegisterToLayerManager(layer);
-        }
-    }
 }

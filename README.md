@@ -1,6 +1,8 @@
 # Jamesnet.Foundation
 
-`Jamesnet.Foundation` is a core library that provides common functionality across various platforms. It is referenced by several platform-specific projects, which utilize its essential features.
+`Jamesnet.Foundation` is a XAML-based cross-platform library. **One package covers every platform** — install `Jamesnet.Foundation` and the right assembly for your platform is selected automatically at build time.
+
+> **v10.0 — Single Package.** The former `Jamesnet.Platform.*` packages have been merged into `Jamesnet.Foundation`. See [docs/ARCHITECTURE.ko.md](docs/ARCHITECTURE.ko.md) for the design and the migration guide.
 
 [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Foundation.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Foundation/)  [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Foundation.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Foundation/)
 
@@ -8,25 +10,25 @@
 
 ## Supported Platforms
 
-- **[Jamesnet.Platform.OpenSilver](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.OpenSilver.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.OpenSilver.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)
-- **[Jamesnet.Platform.Wpf](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Wpf.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Wpf.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)
-- **[Jamesnet.Platform.Uno](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Uno.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Uno.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)
-- **[Jamesnet.Platform.Uwp](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Uwp.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Uwp.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)
-- **[Jamesnet.Platform.WinUI3](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)**    [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.WinUI3.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)    [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.WinUI3.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)
+All of these are served by the single `Jamesnet.Foundation` package.
+
+| Platform | Baseline |
+|---|---|
+| WPF | .NET 10 |
+| OpenSilver | 3.3.3 |
+| Uno Platform | Uno.Sdk 6.6.42 |
+| WinUI 3 | Windows App SDK 2.4.0 |
+| UWP | UniversalWindowsPlatform 6.2.15 |
 
 ## Installation
 
-Install the package using the NuGet Package Manager:
+One package, whichever platform you target:
 
 ```powershell
 Install-Package Jamesnet.Foundation
 ```
 
-For WPF projects, you should also install the following package:
-
-```powershell
-Install-Package Jamesnet.Platform.Wpf
-```
+That's it — no platform-specific package to add.
 
 ## Usage
 
@@ -37,8 +39,7 @@ Install-Package Jamesnet.Platform.Wpf
 ### Example: Using AppBootstrapper in a WPF Project
 
 ```csharp
-using Jamesnet.Foundation;
-using Jamesnet.Platform.Wpf; // WPF platform package reference
+using Jamesnet.Foundation; // this single using covers every platform
 
 namespace MyApp
 {

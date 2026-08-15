@@ -15,15 +15,23 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
-      - name: Pack Foundation
-        run: dotnet pack src/Jamesnet.Foundation/Jamesnet.Foundation.csproj -c Release
+      # UWP flavor는 레거시 non-SDK 프로젝트라 dotnet CLI로는 빌드할 수 없고
+      # Visual Studio의 MSBuild가 필요하다. windows-latest 러너에는 VS가 있으므로
+      # MSBuild를 PATH에 올려 전체 flavor를 담은 패키지를 만든다.
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
-      - name: Pack Platform.WPF
-        run: dotnet pack src/Jamesnet.Platform.WPF/Jamesnet.Platform.WPF.csproj -c Release
+      - name: Build UWP flavor
+        run: |
+          nuget restore src/Jamesnet.Foundation.sln
+          msbuild src/Jamesnet.Platform.UWP/Jamesnet.Platform.Uwp.csproj /p:Configuration=Release /p:Platform=AnyCPU
+
+      # Jamesnet.Foundation은 이제 단 하나의 패키지다.
+      # 모든 플랫폼 flavor가 이 패키지 하나에 담긴다.
+      - name: Pack Jamesnet.Foundation
+        run: dotnet pack src/Jamesnet.Foundation.Package/Jamesnet.Foundation.Package.csproj -c Release -p:JamesnetFlavors="wpf;opensilver;winui3;uno;uwp"
 
       - name: Push to NuGet
-        run: |
-          dotnet nuget push src/Jamesnet.Foundation/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push src/Jamesnet.Platform.WPF/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push src/Jamesnet.Foundation.Package/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

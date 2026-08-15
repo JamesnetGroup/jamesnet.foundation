@@ -1,42 +1,12 @@
+using System;
 using Jamesnet.Foundation;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 
-namespace Jamesnet.Platform.WinUI3
+namespace Jamesnet.Platform.WinUI3;
+
+/// <summary>
+/// 9.x 호환용 별칭. 구현은 <see cref="XamlLayer"/> 한 곳에만 있다.
+/// </summary>
+[Obsolete("Jamesnet.Foundation.XamlLayer를 사용하세요. WinUI3Layer는 다음 메이저 버전에서 제거됩니다.")]
+public class WinUI3Layer : XamlLayer
 {
-    public class WinUI3Layer : ContentControl, ILayer
-    {
-        public static readonly DependencyProperty LayerNameProperty =
-            DependencyProperty.Register(nameof(LayerName), typeof(string), typeof(WinUI3Layer), new PropertyMetadata(null, OnLayerNameChanged));
-
-        public bool IsRegistered { get; set; }
-
-        public string LayerName
-        {
-            get => (string)GetValue(LayerNameProperty);
-            set => SetValue(LayerNameProperty, value);
-        }
-
-        public object UIContent
-        {
-            get => (object)Content;
-            set => Content = (UIElement)value;
-        }
-
-        public WinUI3Layer()
-        {
-            DefaultStyleKey = typeof(WinUI3Layer);
-            LayerManager.InitializeLayer(this);
-        }
-
-        private static void OnLayerNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is WinUI3Layer layer)
-            {
-                layer.IsRegistered = false;
-                LayerManager.RegisterToLayerManager(layer);
-            }
-        }
-    }
 }
-

@@ -1,40 +1,13 @@
+using System;
 using Jamesnet.Foundation;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 
-namespace Jamesnet.Platform.Uwp;
-
-public class UwpLayer : ContentControl, ILayer
+namespace Jamesnet.Platform.Uwp
 {
-    public static readonly DependencyProperty LayerNameProperty =
-        DependencyProperty.Register(nameof(LayerName), typeof(string), typeof(UwpLayer), new PropertyMetadata(null, OnLayerNameChanged));
-
-    public bool IsRegistered { get; set; }
-
-    public string LayerName
+    /// <summary>
+    /// 9.x 호환용 별칭. 구현은 <see cref="XamlLayer"/> 한 곳에만 있다.
+    /// </summary>
+    [Obsolete("Jamesnet.Foundation.XamlLayer를 사용하세요. UwpLayer는 다음 메이저 버전에서 제거됩니다.")]
+    public class UwpLayer : XamlLayer
     {
-        get => (string)GetValue(LayerNameProperty);
-        set => SetValue(LayerNameProperty, value);
-    }
-
-    public object UIContent
-    {
-        get => (object)Content;
-        set => Content = value;
-    }
-
-    public UwpLayer()
-    {
-        DefaultStyleKey = typeof(UwpLayer);
-        LayerManager.InitializeLayer(this);
-    }
-
-    private static void OnLayerNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is UwpLayer layer)
-        {
-            layer.IsRegistered = false;
-            LayerManager.RegisterToLayerManager(layer);
-        }
     }
 }

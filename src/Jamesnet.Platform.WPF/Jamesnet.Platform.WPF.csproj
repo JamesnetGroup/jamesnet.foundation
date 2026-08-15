@@ -1,22 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>9.1.13.18</Version>
-    <Authors>Jaewung Lee, Yang Qu</Authors>
-    <Product>Jamesnet.Platform.Wpf</Product>
-    <Copyright>Copyright © 2025 JamesnetGroup</Copyright>
-    <PackageProjectUrl>https://github.com/jamesnetgroup/jamesnet.foundation</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/jamesnetgroup/jamesnet.foundation</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>jamesnet,xaml,wpf,opensilver,uno-platform,winui3,uwp</PackageTags>
-    <Description>XAML-Based Cross-Platform</Description>
+    <LangVersion>13</LangVersion>
+
+    <!-- 모든 flavor가 같은 어셈블리 이름/네임스페이스를 갖는다.
+         소비자는 플랫폼과 무관하게 항상 Jamesnet.Foundation 하나만 본다. -->
+    <AssemblyName>Jamesnet.Foundation</AssemblyName>
+    <RootNamespace>Jamesnet.Foundation</RootNamespace>
+    <Version>$(JamesnetVersion)</Version>
+    <Product>Jamesnet.Foundation</Product>
+
+    <!-- 패키징은 Jamesnet.Foundation.Package 프로젝트가 전담한다. -->
+    <IsPackable>false</IsPackable>
+
+    <DefineConstants>$(DefineConstants);WPF</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jamesnet.Foundation\Jamesnet.Foundation.csproj" />
+    <Compile Include="..\Shared\**\*.cs" LinkBase="Shared" Exclude="..\Shared\Core\InjectAttribute.cs" />
   </ItemGroup>
 
 </Project>

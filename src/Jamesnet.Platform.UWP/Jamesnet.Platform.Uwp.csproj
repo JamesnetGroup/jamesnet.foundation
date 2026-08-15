@@ -7,8 +7,8 @@
     <ProjectGuid>{080A74D4-ACCE-47C3-A09F-2D5A3539DE2D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Jamesnet.Platform.Uwp</RootNamespace>
-    <AssemblyName>Jamesnet.Platform.Uwp</AssemblyName>
+    <RootNamespace>Jamesnet.Foundation</RootNamespace>
+    <AssemblyName>Jamesnet.Foundation</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>    
     <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
@@ -16,7 +16,7 @@
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <LangVersion>10</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -120,7 +120,13 @@
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);UWP</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\**\*.cs" Exclude="..\Shared\Core\InjectAttribute.cs">
+      <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
     <Compile Include="CustomWrapPanel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecursiveControl.cs" />
@@ -131,12 +137,6 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Jamesnet.Foundation\Jamesnet.Foundation.csproj">
-      <Project>{bc971247-ae28-433a-876c-a89a967f00f8}</Project>
-      <Name>Jamesnet.Foundation</Name>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
