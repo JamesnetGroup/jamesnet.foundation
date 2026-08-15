@@ -1,10 +1,31 @@
+using System.Collections;
+#if WINUI3 || UNO
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Collections;
+#elif UWP
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+#else // WPF, OPENSILVER
+using System.Windows;
+using System.Windows.Controls;
+#endif
 
-namespace Jamesnet.Platform.WinUI3;
+namespace Jamesnet.Foundation;
 
-public class RecursiveControl : ListBoxItem
+/// <summary>
+/// ItemsSource의 각 항목을 자기 자신의 컨테이너로 재귀 렌더링하는
+/// 플랫폼 중립 컨트롤. 소스는 이 파일 한 벌이고 각 flavor가 컴파일한다.
+///
+/// WinUI3와 UWP는 9.x부터 ListBoxItem을 상속해 왔으므로 그대로 유지하고,
+/// 나머지 플랫폼은 ContentControl을 상속한다. OnApplyTemplate의 접근성은
+/// WPF/OpenSilver 계열(public)과 WinUI 계열(protected)이 다르다.
+/// </summary>
+public class RecursiveControl :
+#if WINUI3 || UWP
+    ListBoxItem
+#else
+    ContentControl
+#endif
 {
     public RecursiveControl()
     {
@@ -40,7 +61,8 @@ public class RecursiveControl : ListBoxItem
         set => SetValue(IsExpandedProperty, value);
     }
 
-    public static readonly DependencyProperty IsExpandedProperty = DependencyProperty.Register(nameof(IsExpanded), typeof(bool), typeof(RecursiveControl), new PropertyMetadata(true, OnIsExpandedChanged));
+    public static readonly DependencyProperty IsExpandedProperty =
+        DependencyProperty.Register(nameof(IsExpanded), typeof(bool), typeof(RecursiveControl), new PropertyMetadata(true, OnIsExpandedChanged));
 
     private static void OnIsExpandedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
@@ -49,7 +71,11 @@ public class RecursiveControl : ListBoxItem
 
     private Panel _itemsPanel;
 
+#if WPF || OPENSILVER
+    public override void OnApplyTemplate()
+#else
     protected override void OnApplyTemplate()
+#endif
     {
         base.OnApplyTemplate();
         _itemsPanel = GetTemplateChild("PART_ItemsPanel") as Panel;
