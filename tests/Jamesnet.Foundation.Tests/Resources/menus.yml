@@ -1,0 +1,5 @@
+# BaseResourceLoader 테스트용
+- name: Home
+  order: 2
+- name: Settings
+  order: 1

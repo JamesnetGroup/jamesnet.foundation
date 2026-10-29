@@ -313,4 +313,47 @@ public class YamlTests
     {
         Assert.Throws<System.IO.FileNotFoundException>(() => YamlConverter.ParseResource(typeof(YamlTests).Assembly, "nope.yml"));
     }
+
+    private class MenuLoader : BaseResourceLoader<(string Name, int Order), List<string>>
+    {
+        protected override string AssemblyName => typeof(YamlTests).Assembly.GetName().Name;
+        protected override string ResourcePath => "Tests.menus.yml";
+
+        protected override IEnumerable<(string Name, int Order)> ConvertToItems(YamlData rawData) =>
+            rawData.Select(i => (i.GetValue<string>("name"), i.GetValue<int>("order")));
+
+        protected override List<string> OrganizeItems(IEnumerable<(string Name, int Order)> items) =>
+            items.OrderBy(i => i.Order).Select(i => i.Name).ToList();
+    }
+
+    [Fact]
+    public void BaseResourceLoader_reads_embedded_yaml()
+    {
+        Assert.Equal(new[] { "Settings", "Home" }, new MenuLoader().LoadAndOrganize());
+    }
+}
+
+public class StringExtensionsTests
+{
+    [Theory]
+    [InlineData("hello world", "HelloWorld")]
+    [InlineData("MAIN CONTENT", "MainContent")]
+    [InlineData("", "")]
+    public void ToPascal_converts(string input, string expected) => Assert.Equal(expected, input.ToPascal());
+
+    [Fact]
+    public void ToPascal_ignores_current_culture()
+    {
+        var previous = Thread.CurrentThread.CurrentCulture;
+        try
+        {
+            // 터키어에서는 "I".ToLower()가 점 없는 ı가 된다.
+            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("tr-TR");
+            Assert.Equal("ItemList", "ITEM LIST".ToPascal());
+        }
+        finally
+        {
+            Thread.CurrentThread.CurrentCulture = previous;
+        }
+    }
 }

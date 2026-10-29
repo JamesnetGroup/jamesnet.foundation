@@ -20,6 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\menus.yml" LogicalName="Tests.menus.yml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Jamesnet.Foundation.Wpf\Jamesnet.Foundation.Wpf.csproj" />
   </ItemGroup>
 
