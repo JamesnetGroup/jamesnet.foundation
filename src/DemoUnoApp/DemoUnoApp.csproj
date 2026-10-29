@@ -1,0 +1,19 @@
+<Project Sdk="Uno.Sdk">
+
+  <!-- Uno 데스크톱 데모. WPF·OpenSilver 데모와 같은 화면 구성과 ViewModel을 쓴다. -->
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-desktop</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <UnoSingleProject>true</UnoSingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <ApplicationTitle>DemoUnoApp</ApplicationTitle>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Jamesnet.Platform.Uno\Jamesnet.Platform.Uno.csproj" />
+  </ItemGroup>
+
+</Project>

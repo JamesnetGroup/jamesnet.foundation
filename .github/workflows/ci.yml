@@ -37,3 +37,4 @@ jobs:
         run: |
           dotnet build src/DemoWpfApp/DemoWpfApp.csproj -c Release
           dotnet build src/DemoOpenSilverApp/DemoOpenSilverApp/DemoOpenSilverApp.csproj -c Release
+          dotnet build src/DemoUnoApp/DemoUnoApp.csproj -c Release
