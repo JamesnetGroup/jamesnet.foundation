@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    WPF flavor로 공용 소스(src/Shared)를 검사한다. Core 로직은 모든 flavor가 같은 소스를 쓰므로
+    여기서 한 번 검증하면 된다. Xaml 쪽은 WPF에서 실제 창을 띄워 확인한다.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Jamesnet.Platform.WPF\Jamesnet.Platform.WPF.csproj" />
+  </ItemGroup>
+
+</Project>

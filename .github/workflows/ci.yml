@@ -1,0 +1,39 @@
+name: CI
+
+# 배포 없이 검사만 한다. 배포는 태그 push 시 nuget-publish.yml이 맡는다.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Test
+        run: dotnet test src/Jamesnet.Foundation.Tests/Jamesnet.Foundation.Tests.csproj -c Release
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build UWP flavor
+        run: |
+          nuget restore src/Jamesnet.Foundation.sln
+          msbuild src/Jamesnet.Platform.UWP/Jamesnet.Platform.Uwp.csproj /p:Configuration=Release /p:Platform=AnyCPU
+
+      # 모든 flavor가 빌드되고 한 패키지에 담기는지 확인한다.
+      - name: Pack (all flavors)
+        run: dotnet pack src/Jamesnet.Foundation.Package/Jamesnet.Foundation.Package.csproj -c Release -p:JamesnetFlavors="wpf;opensilver;winui3;uno;uwp"
+
+      - name: Build demos
+        run: |
+          dotnet build src/DemoWpfApp/DemoWpfApp.csproj -c Release
+          dotnet build src/DemoOpenSilverApp/DemoOpenSilverApp/DemoOpenSilverApp.csproj -c Release

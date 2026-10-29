@@ -88,11 +88,11 @@ NuGet에 `Jamesnet.Platform.OpenSilver`, `.Wpf`, `.Uno`, `.Uwp`, `.WinUI3`가 �
 
 ### 3-1. 테스트
 
-**현재 테스트 프로젝트가 하나도 없다.** 5개 플랫폼에 같은 코드를 공유하는 구조라서
-회귀를 놓치기 쉽다.
+`src/Jamesnet.Foundation.Tests` (xUnit, WPF flavor로 공용 소스를 검사).
 
-- [ ] 코어 단위 테스트 (`Container`, `LayerManager`, `ViewModelMapper`, `RelayCommand`, Yaml)
-      — 플랫폼 무관이므로 netstandard 타겟 하나로 충분
+- [x] 코어 단위 테스트 (`Container`, `LayerManager`, `RelayCommand`, `ViewModelBase`, Yaml)
+- [x] WPF 실제 창 테스트 (`XamlLayer`, `AnimatedXamlLayer`, Responsive*, 레이어 자동 등록)
+- [ ] Uno 런타임 테스트 — 로컬 임시 앱으로는 통과 확인. 헤드리스 실행 방법을 정해 저장소로 옮긴다
 - [ ] flavor 스모크 테스트: 각 flavor DLL이 `XamlLayer`를 노출하는지 확인
 - [ ] 소비자 검증 자동화 — 지금은 수동으로 4개 소비자 프로젝트를 만들어 확인했다.
       이 절차를 CI 스크립트로 고정한다
@@ -100,7 +100,7 @@ NuGet에 `Jamesnet.Platform.OpenSilver`, `.Wpf`, `.Uno`, `.Uwp`, `.WinUI3`가 �
 ### 3-2. CI
 
 - [ ] UWP flavor가 CI에서 실제로 빌드되는지 확인 (로컬에서는 VS MSBuild가 없어 미검증)
-- [ ] 태그 없이도 PR마다 전체 flavor 빌드가 도는 워크플로우 추가
+- [x] 태그 없이도 PR마다 전체 flavor 빌드가 도는 워크플로우 추가 (`.github/workflows/ci.yml`: 테스트 + 전체 flavor pack + 데모 빌드)
 
 ### 3-3. 데모
 
@@ -134,7 +134,7 @@ v10.0.0을 NuGet에 올리기 위한 조건이다.
 
 - [x] Phase 1 완료 (중복 제거)
 - [ ] Phase 2 결정 사항 문서 반영
-- [ ] Phase 3-1 코어 테스트 통과
+- [x] Phase 3-1 코어 테스트 통과
 - [ ] WPF · OpenSilver · Uno 데모 3종 정상 동작 확인
 - [ ] CI에서 전체 flavor(UWP 포함) 포함 pack 성공
 - [ ] `JAMESNETPACK001` 경고 없이 패키지 생성
