@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# OpenSilver 시뮬레이터 WebView2 캐시
+simulator-temp-cache/

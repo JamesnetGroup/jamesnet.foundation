@@ -105,7 +105,7 @@ NuGet에 `Jamesnet.Platform.OpenSilver`, `.Wpf`, `.Uno`, `.Uwp`, `.WinUI3`가 �
 ### 3-3. 데모
 
 - [x] Uno 데모 앱 (`src/DemoUnoApp`, 데스크톱. 메뉴 전환과 반응형 메뉴 폭까지 실행 확인)
-- [ ] WinUI3 데모 앱
+- [x] WinUI3 데모 앱 (`src/DemoWinUI3App`, MSIX 없이 실행. 메뉴 전환 실행 확인)
 - [ ] 데모 3종이 **동일한 View/ViewModel 코드**를 공유하도록 구성 —
       통합이 실제로 성립하는지 보여주는 가장 좋은 증거가 된다
 

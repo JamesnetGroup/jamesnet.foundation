@@ -1,0 +1,23 @@
+<UserControl x:Class="DemoWinUI3App.UI.Views.MainContent"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:based="using:Jamesnet.Foundation"
+             xmlns:responsive="using:Jamesnet.Foundation.Responsive">
+    <Grid Background="Green">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 창이 좁아지면(768 이하) 메뉴 폭과 글자 크기가 줄어든다. -->
+        <ListView ItemsSource="{Binding Menus}"
+                  SelectedItem="{Binding CurrentMenu, Mode=TwoWay}"
+                  DisplayMemberPath="MenuName"
+                  responsive:ResponsiveWidth.Desktop="200"
+                  responsive:ResponsiveWidth.Mobile="100"
+                  responsive:ResponsiveFontSize.Desktop="20"
+                  responsive:ResponsiveFontSize.Mobile="14"/>
+
+        <based:AnimatedXamlLayer Grid.Column="1" LayerName="Content"/>
+    </Grid>
+</UserControl>

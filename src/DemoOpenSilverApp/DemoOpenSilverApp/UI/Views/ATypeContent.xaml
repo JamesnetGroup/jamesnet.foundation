@@ -6,6 +6,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="Brown">
-        <Slider/>
+        <Slider AutomationProperties.Name="Type A slider"/>
     </Grid>
 </UserControl>
