@@ -12,6 +12,6 @@
             <ListBox ItemsSource="{Binding Menus}" SelectedItem="{Binding CurrentMenu, Mode=TwoWay}" DisplayMemberPath="MenuName">
             </ListBox>
         </StackPanel>
-        <based:AnimatedOpenSilverLayer LayerName="Content"/>
+        <based:AnimatedXamlLayer LayerName="Content"/>
     </DockPanel>
 </UserControl>

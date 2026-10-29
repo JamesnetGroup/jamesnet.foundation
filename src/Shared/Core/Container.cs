@@ -94,50 +94,61 @@ public class Container : IContainer
         return false;
     }
 
+    // 지금 이 스레드에서 생성 중인 타입. 순환 의존성(A→B→A)을 스택 오버플로 대신 명확한 예외로 알린다.
+    [ThreadStatic]
+    private static HashSet<Type> _creating;
+
     private object CreateInstance(Type type)
     {
-        var constructors = type.GetConstructors();
-        var constructor = constructors.FirstOrDefault(c => c.GetParameters().Length > 0) ?? constructors.First();
-        var parameters = constructor.GetParameters().Select(p => Resolve(p.ParameterType)).ToArray();
-        var instance = constructor.Invoke(parameters);
+        // 의존성을 가장 많이 받는 public 생성자를 쓴다. (DefaultViewModelInitializer와 같은 규칙)
+        var constructor = type.GetConstructors().OrderByDescending(c => c.GetParameters().Length).FirstOrDefault()
+            ?? throw new InvalidOperationException($"Type {type} has no public constructor.");
+
+        _creating ??= new HashSet<Type>();
+        if (!_creating.Add(type))
+        {
+            throw new InvalidOperationException($"Circular dependency detected while creating {type}.");
+        }
+
+        object instance;
+        try
+        {
+            instance = constructor.Invoke(constructor.GetParameters().Select(p => Resolve(p.ParameterType)).ToArray());
+        }
+        finally
+        {
+            _creating.Remove(type);
+        }
 
         if (instance is IView view)
         {
-            var initializer = Resolve<IViewModelInitializer>();
-            initializer.InitializeViewModel(view);
-            var viewModelInitialized = view.DataContext != null;
-            var loadedEvent = type.GetEvent("Loaded");
-
-            if (loadedEvent != null)
-            {
-                Action<object, object> handler = null;
-                handler = (s, e) =>
-                {
-                    if (viewModelInitialized && view.DataContext is IViewFirstLoadable loadable)
-                    {
-                        loadable.OnFirstLoad(view);
-                    }
-                    var delegateType = loadedEvent.EventHandlerType;
-                    var removeHandler = Delegate.CreateDelegate(delegateType, (object)handler.Target, handler.Method);
-                    loadedEvent.RemoveEventHandler(view, removeHandler);
-                };
-
-                Action<object, object> loadHandler = (s, e) =>
-                {
-                    if (viewModelInitialized && view.DataContext is IViewLoadable loadable)
-                    {
-                        loadable.OnLoaded(view);
-                    }
-                };
-
-                var addHandler = Delegate.CreateDelegate(loadedEvent.EventHandlerType, (object)handler.Target, handler.Method);
-                var loadDelegate = Delegate.CreateDelegate(loadedEvent.EventHandlerType, (object)loadHandler.Target, loadHandler.Method);
-
-                loadedEvent.AddEventHandler(view, addHandler);
-                loadedEvent.AddEventHandler(view, loadDelegate);
-            }
+            InitializeView(view, type);
         }
 
         return instance;
+    }
+
+    private void InitializeView(IView view, Type type)
+    {
+        Resolve<IViewModelInitializer>().InitializeViewModel(view);
+
+        var loadedEvent = type.GetEvent("Loaded");
+        if (loadedEvent == null || view.DataContext == null)
+        {
+            return;
+        }
+
+        bool isFirst = true;
+        Action<object, object> onLoaded = (_, _) =>
+        {
+            if (isFirst && view.DataContext is IViewFirstLoadable firstLoadable)
+            {
+                firstLoadable.OnFirstLoad(view);
+            }
+            isFirst = false;
+
+            (view.DataContext as IViewLoadable)?.OnLoaded(view);
+        };
+        loadedEvent.AddEventHandler(view, Delegate.CreateDelegate(loadedEvent.EventHandlerType, onLoaded.Target, onLoaded.Method));
     }
 }

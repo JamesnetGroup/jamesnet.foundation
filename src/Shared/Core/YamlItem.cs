@@ -20,7 +20,7 @@ public class YamlItem : Dictionary<string, string>
         string value;
         if (TryGetValue(key, out value))
         {
-            return (T)Convert.ChangeType(value, typeof(T));
+            return (T)Convert.ChangeType(value, typeof(T), System.Globalization.CultureInfo.InvariantCulture);
         }
         return default(T);
     }

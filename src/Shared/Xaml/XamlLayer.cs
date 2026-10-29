@@ -1,21 +1,14 @@
-#if WINUI3 || UNO
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-#elif UWP
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-#else // WPF, OPENSILVER
-using System.Windows;
-using System.Windows.Controls;
-#endif
-
 namespace Jamesnet.Foundation;
 
 /// <summary>
-/// 플랫폼 중립 레이어 컨트롤. WPF, OpenSilver, WinUI3, Uno에서 동일한 이름과
+/// 플랫폼 중립 레이어 컨트롤. WPF, OpenSilver, WinUI3, Uno, UWP에서 동일한 이름과
 /// 동일한 동작으로 사용한다. 플랫폼마다 별도의 어셈블리로 컴파일되지만
 /// 소스는 이 파일 한 벌뿐이다.
 /// </summary>
+/// <remarks>
+/// DefaultStyleKey를 바꾸지 않는다. 바꾸면 해당 키의 테마 스타일(Generic.xaml)이 없는 플랫폼에서
+/// 템플릿이 비어 아무것도 그려지지 않는다. 기본 ContentControl/UserControl 템플릿을 그대로 쓴다.
+/// </remarks>
 public class XamlLayer :
 #if OPENSILVER
     UserControl
@@ -25,11 +18,7 @@ public class XamlLayer :
     , ILayer
 {
     public static readonly DependencyProperty LayerNameProperty =
-        DependencyProperty.Register(
-            nameof(LayerName),
-            typeof(string),
-            typeof(XamlLayer),
-            new PropertyMetadata(null, OnLayerNameChanged));
+        DependencyProperty.Register(nameof(LayerName), typeof(string), typeof(XamlLayer), new PropertyMetadata(null, OnLayerNameChanged));
 
     public bool IsRegistered { get; set; }
 
@@ -39,7 +28,8 @@ public class XamlLayer :
         set => SetValue(LayerNameProperty, value);
     }
 
-    public object UIContent
+    /// <summary>LayerManager가 보여줄 뷰. 파생 레이어는 전환 방식을 바꾸려면 재정의한다.</summary>
+    public virtual object UIContent
     {
         get => Content;
 #if OPENSILVER || WINUI3 || UWP
@@ -51,14 +41,10 @@ public class XamlLayer :
 
     public XamlLayer()
     {
-        DefaultStyleKey = typeof(XamlLayer);
-
-        if (IsInDesignMode(this))
+        if (!IsInDesignMode(this))
         {
-            return;
+            LayerManager.InitializeLayer(this);
         }
-
-        LayerManager.InitializeLayer(this);
     }
 
     private static void OnLayerNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

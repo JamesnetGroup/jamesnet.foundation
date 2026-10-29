@@ -5,83 +5,54 @@ namespace Jamesnet.Foundation;
 
 public class LayerManager : ILayerManager
 {
-    private readonly Dictionary<string, ILayer> _layers = new Dictionary<string, ILayer>();
-    private readonly Dictionary<string, List<IView>> _layerViews = new Dictionary<string, List<IView>>();
-    private readonly Dictionary<string, IView> _layerViewMappings = new Dictionary<string, IView>();
+    private readonly Dictionary<string, ILayer> _layers = new();
+    private readonly Dictionary<string, IView> _layerViewMappings = new();
 
+    /// <summary>
+    /// 레이어를 이름으로 등록한다. 같은 이름으로 다시 등록하면(창을 새로 열어 레이어가 다시 만들어진 경우 등)
+    /// 새 레이어로 교체하고 매핑된 뷰를 다시 보여준다. 옛 레이어는 더 이상 붙잡지 않는다.
+    /// </summary>
     public void Register(string layerName, ILayer layer)
     {
-        Console.WriteLine($"LayerManager.Register called with layerName: {layerName}");
-
-        if (!_layers.ContainsKey(layerName))
+        if (_layers.TryGetValue(layerName, out var existing) && ReferenceEquals(existing, layer))
         {
-            _layers[layerName] = layer;
-            _layerViews[layerName] = new List<IView>();
-            if (_layerViewMappings.TryGetValue(layerName, out var view))
-            {
-                Show(layerName, view);
-            }
+            return;
+        }
+
+        _layers[layerName] = layer;
+        if (_layerViewMappings.TryGetValue(layerName, out var view))
+        {
+            Show(layerName, view);
         }
     }
 
     public void Show(string layerName, IView view)
     {
-        if (!_layers.TryGetValue(layerName, out var layer))
-        {
-            throw new InvalidOperationException($"Layer not registered: {layerName}");
-        }
+        var layer = GetRequiredLayer(layerName);
 
         if (view == null)
         {
             layer.UIContent = null;
-            Console.WriteLine($"NavigateContent layer.Content is null");
             return;
         }
 
-        if (layer.UIContent!= null && layer.UIContent.Equals(view))
+        if (Equals(layer.UIContent, view))
         {
-            if(view.DataContext is IViewLoadable loadable)
-            {
-                loadable.OnLoaded(view);
-            }
+            (view.DataContext as IViewLoadable)?.OnLoaded(view);
             return;
         }
 
-        if (!_layerViews[layerName].Contains(view))
+        if (layer.UIContent is IView closing && closing.DataContext is IViewClosed viewClosed)
         {
-            Add(layerName, view);
-        }
-
-        if (layer.UIContent is IView iview && iview.DataContext is IViewClosed viewClosed)
-        {
-            viewClosed.OnClosed(view);
+            viewClosed.OnClosed(closing);
         }
 
         layer.UIContent = view;
-
-        if (view.DataContext is IViewActivated activated)
-        { 
-            activated.ViewActivated(view);
-        }
+        (view.DataContext as IViewActivated)?.ViewActivated(view);
     }
 
-    public void Add(string layerName, IView view)
-    {
-        if (!_layers.ContainsKey(layerName))
-        {
-            throw new InvalidOperationException($"Layer not registered: {layerName}");
-        }
-
-        if (!_layerViews.ContainsKey(layerName))
-        {
-            _layerViews[layerName] = new List<IView>();
-        }
-
-        if (!_layerViews[layerName].Contains(view))
-        {
-            _layerViews[layerName].Add(view);
-        }
-    }
+    /// <summary>레이어가 등록되어 있는지만 확인한다. (뷰 목록을 따로 보관하지 않는다)</summary>
+    public void Add(string layerName, IView view) => GetRequiredLayer(layerName);
 
     public void Hide(string layerName)
     {
@@ -91,38 +62,37 @@ public class LayerManager : ILayerManager
         }
     }
 
-    public void Mapping(string layerName, IView view)
-    {
-        _layerViewMappings[layerName] = view;
-    }
+    public void Mapping(string layerName, IView view) => _layerViewMappings[layerName] = view;
 
+    public ILayer GetLayer(string layerName) => _layers.TryGetValue(layerName, out var layer) ? layer : null;
+
+    private ILayer GetRequiredLayer(string layerName) =>
+        GetLayer(layerName) ?? throw new InvalidOperationException($"Layer not registered: {layerName}");
+
+    /// <summary>레이어가 Loaded될 때 LayerManager에 등록되도록 한다. Loaded 이벤트가 없는 타입은 즉시 등록한다.</summary>
     public static void InitializeLayer(ILayer layer)
     {
         if (layer == null)
-            throw new ArgumentNullException(nameof(layer));
-
-        var type = layer.GetType();
-        var loadedEvent = type.GetEvent("Loaded");
-        if (loadedEvent != null)
         {
-            Delegate handler = null;
-
-            Action<object, object> handlerAction = (s, e) =>
-            {
-                RegisterToLayerManager(layer);
-                loadedEvent.RemoveEventHandler(layer, handler);
-            };
-
-            handler = Delegate.CreateDelegate(loadedEvent.EventHandlerType, handlerAction.Target, handlerAction.Method);
-
-            loadedEvent.AddEventHandler(layer, handler);
+            throw new ArgumentNullException(nameof(layer));
         }
-        else
+
+        var loadedEvent = layer.GetType().GetEvent("Loaded");
+        if (loadedEvent == null)
         {
             RegisterToLayerManager(layer);
+            return;
         }
-    }
 
+        Delegate handler = null;
+        Action<object, object> onLoaded = (_, _) =>
+        {
+            loadedEvent.RemoveEventHandler(layer, handler);
+            RegisterToLayerManager(layer);
+        };
+        handler = Delegate.CreateDelegate(loadedEvent.EventHandlerType, onLoaded.Target, onLoaded.Method);
+        loadedEvent.AddEventHandler(layer, handler);
+    }
 
     public static void RegisterToLayerManager(ILayer layer)
     {
@@ -137,14 +107,5 @@ public class LayerManager : ILayerManager
             layerManager.Register(layer.LayerName, layer);
             layer.IsRegistered = true;
         }
-    }
-
-    public ILayer GetLayer(string layerName)
-    {
-        if (_layers.ContainsKey(layerName))
-        { 
-            return _layers[layerName];
-        }
-        return null;
     }
 }

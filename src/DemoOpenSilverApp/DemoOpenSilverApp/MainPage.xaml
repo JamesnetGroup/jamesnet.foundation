@@ -6,5 +6,5 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
       Foreground="{DynamicResource Theme_TextBrush}">
-    <based:AnimatedOpenSilverLayer LayerName="Main"/>
+    <based:AnimatedXamlLayer LayerName="Main"/>
 </Page>

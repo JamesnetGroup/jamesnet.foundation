@@ -127,9 +127,7 @@
     <Compile Include="..\Shared\**\*.cs" Exclude="..\Shared\Core\InjectAttribute.cs">
       <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
-    <Compile Include="CustomWrapPanel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UwpLayer.cs" />
     <EmbeddedResource Include="Properties\Jamesnet.Uwp.rd.xml" />
   </ItemGroup>
   <ItemGroup>

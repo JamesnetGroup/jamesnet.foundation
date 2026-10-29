@@ -79,7 +79,6 @@ public class ContentSwitcher : ContentControl
 
             if (!string.IsNullOrEmpty(contentCase.SourceElementName))
             {
-                binding.ElementName = contentCase.SourceElementName;
                 var element = this.FindName(contentCase.SourceElementName);
                 if (element == null) return;  
                 binding.Source = element;
@@ -99,7 +98,7 @@ public class ContentSwitcher : ContentControl
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error setting binding: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"ContentSwitcher binding failed: {ex.Message}");
         }
     }
 
@@ -118,7 +117,6 @@ public class ContentSwitcher : ContentControl
         {
             if (!IsBindingSet(contentCase))
             {
-                Console.WriteLine("Binding not established yet, skipping");
                 continue;
             }
 
@@ -147,6 +145,12 @@ public class ContentSwitcher : ContentControl
 
     private bool TryConvertMatchValue(object sourceValue, object matchValue, out object result)
     {
+        if (sourceValue == null)
+        {
+            result = matchValue;
+            return matchValue == null;
+        }
+
         try
         {
             var sourceType = sourceValue.GetType();
@@ -163,7 +167,7 @@ public class ContentSwitcher : ContentControl
                 return true;
             }
 
-            result = Convert.ChangeType(matchValue, sourceType);
+            result = Convert.ChangeType(matchValue, sourceType, System.Globalization.CultureInfo.InvariantCulture);
             return true;
         }
         catch

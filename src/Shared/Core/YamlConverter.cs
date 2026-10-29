@@ -21,7 +21,8 @@ public static class YamlConverter
 
     public static IEnumerable<IReadOnlyDictionary<string, string>> ParseResource(Assembly assembly, string resourcePath)
     {
-        using (Stream stream = assembly.GetManifestResourceStream(resourcePath))
+        using (Stream stream = assembly.GetManifestResourceStream(resourcePath)
+            ?? throw new FileNotFoundException($"Embedded resource not found: {resourcePath}", resourcePath))
         using (StreamReader reader = new StreamReader(stream))
         {
             string content = reader.ReadToEnd();

@@ -28,48 +28,29 @@ WinUI3와 UWP도 계속 지원하지만 검증 순서는 뒤다. 어떤 플랫�
 
 ---
 
-## Phase 1 — 중복 제거 (다음 작업)
+## Phase 1 — 중복 제거 ✅ 완료
 
-지금도 같은 코드가 플랫폼마다 흩어져 있다. `XamlLayer`에 적용한 방식
-(`Shared/` + `#if`)을 그대로 확대 적용한다.
+플랫폼마다 흩어져 있던 같은 코드를 `Shared/Xaml/` 한 벌로 올렸다.
 
-### 1-1. Responsive 통합
+- [x] Responsive 12종 → `Shared/Xaml/Responsive/`. 모든 플랫폼이 같은 이름·같은 속성명을 갖는다.
+      (`ResponsiveColumns`만 예외: UniformGrid가 없는 WinUI3/Uno/UWP에는 없다)
+- [x] 플랫폼별 창 너비 추적을 공용 `ResponsiveHelper` 하나로 통합
+      — WPF는 소속 Window, WinUI3/Uno는 XamlRoot, OpenSilver/UWP는 Window.Current.
+      Loaded 동안만 구독하므로 누수가 없고, 다시 Loaded되면 자동 재구독한다.
+      이에 따라 쓰이지 않게 된 `ResponsiveManager`/`IResponsiveHost`/`IResponsiveElement`는 제거했다.
+- [x] `RecursiveControl`, `CustomWrapPanel` → `Shared/Xaml/`
+- [x] `AnimatedWPFLayer`/`AnimatedOpenSilverLayer` → `AnimatedXamlLayer` 한 벌 (전 플랫폼)
+- [x] 9.x 이름(`WPFLayer`, `AnimatedWPFLayer`, `UnoLayer` …)은 `Shared/Xaml/LegacyAliases.cs`의 `[Obsolete]` 별칭으로 유지
+- [x] 플랫폼별 `Responsive/` 폴더와 레이어 파일 제거
 
-현재 분포가 심하게 어긋나 있다.
+이제 플랫폼 폴더에 남은 것은 **그 플랫폼에만 있는 것**뿐이다.
 
-| 플랫폼 | 보유 개수 |
-|---|---|
-| OpenSilver | 12 (가장 완전함 — 통합 기준) |
-| WPF | 5 (+ `ResponsiveHelper`) |
-| Uno | 1 |
-| WinUI3 | 1 |
-| UWP | 0 |
-
-OpenSilver의 12종을 `Shared/Xaml/Responsive/`로 올린다. 완료되면 **모든 플랫폼이
-동시에 12종 전부를 갖게 된다.** 이 작업 하나로 얻는 기능 이득이 가장 크다.
-
-- [ ] `ResponsiveVisibility` 먼저 (5개 플랫폼 모두 있어 차이 비교가 쉽다) — 파일럿
-- [ ] `ResponsiveWidth` / `Height` / `MinHeight` / `Margin` / `BorderThickness`
-- [ ] `ResponsiveFontSize` / `FontWeight`
-- [ ] `ResponsiveColumns` / `Content` / `Child` / `AnimationTo`
-- [ ] `ResponsiveHelper`(WPF 전용) 처리 방침 결정 후 반영
-- [ ] 플랫폼별 `Responsive/` 폴더 제거
-
-주의: `ResponsiveAnimationTo`는 애니메이션 API가 플랫폼마다 차이가 크므로 마지막에
-다룬다. 통합이 무리라면 이것만 플랫폼별로 남기고 그 이유를 코드에 남긴다.
-
-### 1-2. 기타 중복
-
-- [ ] `RecursiveControl` — WPF, Uno, WinUI3, UWP에 각각 존재
-- [ ] `CustomWrapPanel` — WinUI3, UWP에 각각 존재
-
-### 1-3. 정리 결과 목표
-
-플랫폼 폴더에는 **그 플랫폼에만 존재하는 것**만 남긴다. 현재 파일 수는
-WPF 13 / OpenSilver 18 / Uno 3 / WinUI3 4 / UWP 4이며, Phase 1이 끝나면
-대부분이 `Shared/`로 올라가야 한다.
-
----
+| 플랫폼 | 남은 코드 | 이유 |
+|---|---|---|
+| WPF | Docking 4종 | WPF 전용 기능 (Phase 2-1에서 방침 결정) |
+| OpenSilver | `ContentSwitcher`, `ContentCase`, `IMobileView`, `DeviceInfo` | 브라우저(HtmlPage) 의존 또는 OpenSilver 전용 |
+| Uno / WinUI3 | 없음 (프로젝트 파일만) | |
+| UWP | `AssemblyInfo` | 레거시 프로젝트 형식 |
 
 ## Phase 2 — 정책 결정
 
@@ -151,7 +132,7 @@ NuGet에 `Jamesnet.Platform.OpenSilver`, `.Wpf`, `.Uno`, `.Uwp`, `.WinUI3`가 �
 
 v10.0.0을 NuGet에 올리기 위한 조건이다.
 
-- [ ] Phase 1 완료 (중복 제거)
+- [x] Phase 1 완료 (중복 제거)
 - [ ] Phase 2 결정 사항 문서 반영
 - [ ] Phase 3-1 코어 테스트 통과
 - [ ] WPF · OpenSilver · Uno 데모 3종 정상 동작 확인

@@ -7,5 +7,5 @@
         xmlns:local="clr-namespace:DemoWpfApp"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Background="Black">
-    <based:AnimatedWPFLayer LayerName="Main"/>
+    <based:AnimatedXamlLayer LayerName="Main"/>
 </Window>

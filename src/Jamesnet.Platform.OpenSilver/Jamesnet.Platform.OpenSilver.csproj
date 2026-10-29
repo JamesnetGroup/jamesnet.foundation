@@ -22,10 +22,8 @@
 
   <ItemGroup>
     <Compile Include="..\Shared\**\*.cs" LinkBase="Shared" Exclude="..\Shared\Core\InjectAttribute.cs" />
-    <Compile Include="AnimatedOpenSilverLayer.cs" />
     <Compile Include="ContentCase.cs" />
     <Compile Include="IMobileView.cs" />
-    <Compile Include="OpenSilverLayer.cs" />
     <Compile Include="ContentSwitcher.cs" />
     <Compile Include="Scripts\DeviceInfo.cs" />
   </ItemGroup>

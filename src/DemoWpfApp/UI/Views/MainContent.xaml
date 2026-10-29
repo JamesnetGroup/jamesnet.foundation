@@ -15,6 +15,6 @@
         <StackPanel>
             <ListBox ItemsSource="{Binding Menus}" SelectedItem="{Binding CurrentMenu}" DisplayMemberPath="MenuName" IsEnabled="{Binding IsProcessing, Converter={StaticResource BooleanToInverseConverter}}"/>
         </StackPanel>
-        <based:AnimatedWPFLayer LayerName="Content"/>
+        <based:AnimatedXamlLayer LayerName="Content"/>
     </DockPanel>
 </UserControl>

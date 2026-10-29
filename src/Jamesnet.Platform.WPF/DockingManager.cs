@@ -55,7 +55,7 @@ public class DockingManager : ContentControl
 
     private void InitializeGrid()
     {
-        if (_rootGrid == null) return;
+        if (_rootGrid == null || _rootGrid.ColumnDefinitions.Count > 0) return; // 템플릿이 다시 적용돼도 한 번만 구성
         _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
         _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) });
         _rootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -136,6 +136,7 @@ public class DockingManager : ContentControl
 
         if (parent is TabItem tabItem && tabItem.Parent is TabControl tabControl)
         {
+            tabItem.Content = null; // 패널을 TabItem에서 먼저 떼어야 FloatingWindow에 넣을 수 있다
             tabControl.Items.Remove(tabItem);
             if (tabControl.Items.Count == 0) { if (tabControl.Parent is Grid pg) { pg.Children.Remove(tabControl); RemoveFromDictionary(tabControl); PruneTree(pg); } }
             else if (tabControl.Items.Count == 1)
@@ -201,26 +202,34 @@ public class DockingManager : ContentControl
         var lp = PointFromScreen(sp);
         if (!IsPointInBounds(lp)) { ShowDockPreview(false); return false; }
         fw.ForceUnsubscribe(); var panel = fw.Panel; fw.Content = null; panel.IsFloating = false; panel.ResetManagerCache();
-        if (_compass.Visibility == Visibility.Visible && _compass.CurrentHover != CompassTarget.None && _targetDockPanel != null) { if (_compass.CurrentHover == CompassTarget.Center) DockAsTab(_targetDockPanel, panel); else SplitAndDock(_targetDockPanel, panel, CompassTargetToDockPos(_compass.CurrentHover)); ShowDockPreview(false); return true; }
-        var pos = GetEdgeDockPosition(lp);
-        if (pos != DockPosition.None) { if (!_dockedPanels.TryGetValue(pos, out var existing)) AddPanel(panel, pos); else SplitAndDock(existing, panel, pos); ShowDockPreview(false); return true; }
-        ShowDockPreview(false); return false;
+        bool docked = false;
+        if (_compass.Visibility == Visibility.Visible && _compass.CurrentHover != CompassTarget.None && _targetDockPanel != null) docked = _compass.CurrentHover == CompassTarget.Center ? DockAsTab(_targetDockPanel, panel) : SplitAndDock(_targetDockPanel, panel, CompassTargetToDockPos(_compass.CurrentHover));
+        else
+        {
+            var pos = GetEdgeDockPosition(lp);
+            if (pos != DockPosition.None) { if (!_dockedPanels.TryGetValue(pos, out var existing)) { AddPanel(panel, pos); docked = true; } else docked = SplitAndDock(existing, panel, pos); }
+        }
+        ShowDockPreview(false);
+        // 도킹에 실패하면 패널을 떠 있는 창으로 되돌린다. (그대로 두면 창이 닫히며 패널이 사라진다)
+        if (!docked) { fw.Content = panel; panel.IsFloating = true; }
+        return docked;
     }
 
     private DockPosition CompassTargetToDockPos(CompassTarget t) => t switch { CompassTarget.Left => DockPosition.Left, CompassTarget.Right => DockPosition.Right, CompassTarget.Top => DockPosition.Top, CompassTarget.Bottom => DockPosition.Bottom, _ => DockPosition.Center };
     private DockPosition GetEdgeDockPosition(Point p) { double edge = _compass.Visibility == Visibility.Visible ? 30 : 80; if (p.X < edge) return DockPosition.Left; if (p.X > ActualWidth - edge) return DockPosition.Right; if (p.Y < edge) return DockPosition.Top; if (p.Y > ActualHeight - edge) return DockPosition.Bottom; return DockPosition.Center; }
 
-    private void DockAsTab(FrameworkElement existing, DockingPanel newPanel)
+    private bool DockAsTab(FrameworkElement existing, DockingPanel newPanel)
     {
         TabControl tc = existing as TabControl ?? FindParent<TabControl>(existing);
-        if (tc != null) { var nt = CreateTabItem(newPanel); tc.Items.Add(nt); tc.SelectedItem = nt; tc.TabStripPlacement = newPanel.TabPlacement; SyncTabGroupOptions(tc, newPanel.IsHeaderVisible); return; }
-        var parent = existing.Parent as Panel; if (parent == null) return;
+        if (tc != null) { var nt = CreateTabItem(newPanel); tc.Items.Add(nt); tc.SelectedItem = nt; tc.TabStripPlacement = newPanel.TabPlacement; SyncTabGroupOptions(tc, newPanel.IsHeaderVisible); return true; }
+        var parent = existing.Parent as Panel; if (parent == null) return false;
         var ntc = new TabControl { TabStripPlacement = newPanel.TabPlacement };
         var t1 = CreateTabItem(existing is DockingPanel dp ? dp : new DockingPanel { Header = "Panel", Content = existing });
         var t2 = CreateTabItem(newPanel);
         ntc.Items.Add(t1); ntc.Items.Add(t2); ntc.SelectedIndex = 1; SyncTabGroupOptions(ntc, newPanel.IsHeaderVisible);
         int r = Grid.GetRow(existing), c = Grid.GetColumn(existing), rs = Grid.GetRowSpan(existing), cs = Grid.GetColumnSpan(existing);
         parent.Children.Remove(existing); parent.Children.Add(ntc); Grid.SetRow(ntc, r); Grid.SetColumn(ntc, c); Grid.SetRowSpan(ntc, rs); Grid.SetColumnSpan(ntc, cs); UpdateDockDictionary(existing, ntc);
+        return true;
     }
 
     private TabItem CreateTabItem(DockingPanel panel)
@@ -252,10 +261,10 @@ public class DockingManager : ContentControl
 
     private void SyncTabGroupOptions(TabControl tc, bool hv) { foreach (TabItem item in tc.Items) if (item.Content is DockingPanel p) p.IsHeaderVisible = hv; }
 
-    private void SplitAndDock(FrameworkElement existing, DockingPanel newPanel, DockPosition pos)
+    private bool SplitAndDock(FrameworkElement existing, DockingPanel newPanel, DockPosition pos)
     {
         FrameworkElement target = FindParent<TabControl>(existing) ?? existing;
-        var parent = target.Parent as Panel; if (parent == null) return;
+        var parent = target.Parent as Panel; if (parent == null) return false;
         var sg = new Grid(); bool useCol = (pos == DockPosition.Left || pos == DockPosition.Right);
         if (useCol) { sg.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); sg.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) }); sg.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); }
         else { sg.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); sg.RowDefinitions.Add(new RowDefinition { Height = new GridLength(4) }); sg.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); }
@@ -269,6 +278,7 @@ public class DockingManager : ContentControl
         var gs = new GridSplitter { HorizontalAlignment = useCol ? HorizontalAlignment.Center : HorizontalAlignment.Stretch, VerticalAlignment = useCol ? VerticalAlignment.Stretch : VerticalAlignment.Center, Background = Brushes.Gray, ShowsPreview = true };
         if (useCol) { gs.Width = 4; Grid.SetRow(gs, 0); Grid.SetColumn(gs, 1); } else { gs.Height = 4; Grid.SetRow(gs, 1); Grid.SetColumn(gs, 0); }
         sg.Children.Add(gs); if (_dockedPanels.ContainsKey(pos) && _dockedPanels[pos] == target) _dockedPanels[pos] = sg;
+        return true;
     }
 
     private void PruneTree(Grid g)

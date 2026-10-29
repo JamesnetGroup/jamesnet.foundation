@@ -30,6 +30,11 @@ public class ViewModelBase : INotifyPropertyChanged
 
     private void HandleCommandTrigger(string propertyName)
     {
+        if (string.IsNullOrEmpty(propertyName))
+        {
+            return; // OnPropertyChanged(null)은 "전체 갱신" 관례다.
+        }
+
         var property = GetType().GetProperty(propertyName);
         if (property == null)
             return;
@@ -44,7 +49,7 @@ public class ViewModelBase : INotifyPropertyChanged
             if (commandProperty == null)
                 continue;
 
-            var command = commandProperty.GetValue(this) as RelayCommand;
+            var command = commandProperty.GetValue(this) as IRelayCommand;
             command?.RaiseCanExecuteChanged();
         }
     }

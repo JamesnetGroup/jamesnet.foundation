@@ -1,14 +1,4 @@
 using System.Collections;
-#if WINUI3 || UNO
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-#elif UWP
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-#else // WPF, OPENSILVER
-using System.Windows;
-using System.Windows.Controls;
-#endif
 
 namespace Jamesnet.Foundation;
 

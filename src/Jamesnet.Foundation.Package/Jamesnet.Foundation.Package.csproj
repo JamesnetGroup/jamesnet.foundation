@@ -100,6 +100,8 @@
            Text="flavor '%(_Selected.Identity)' 산출물이 없습니다: %(_Selected.Dll)" />
 
     <ItemGroup>
+      <!-- flavor DLL을 pack의 변경 감지 입력에 넣는다. 빠지면 DLL이 바뀌어도 예전 nupkg가 그대로 남는다. -->
+      <NuGetPackInput Include="%(_Selected.Dll)" />
       <_PackageFiles Include="%(_Selected.Dll)">
         <PackagePath>flavors\%(_Selected.Identity)\</PackagePath>
         <BuildAction>None</BuildAction>

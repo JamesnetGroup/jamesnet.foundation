@@ -163,7 +163,7 @@ XAML은 플랫폼 계열에 따라 문법 자체가 다르기 때문에 한 형�
 
 WPF와 OpenSilver의 `clr-namespace` 문법은 원래 `assembly=`를 함께 요구한다.
 이를 감추기 위해 `XmlnsDefinition`으로 URI 하나에 묶었고, `Jamesnet.Platform.*`에
-남아 있는 9.x 시절 타입들(`AnimatedWPFLayer`, Docking 등)도 같은 URI로 함께 노출된다.
+남아 있는 9.x 시절 타입들(`AnimatedWPFLayer` 같은 호환 별칭, Docking 등)도 같은 URI로 함께 노출된다.
 
 Uno·WinUI3·UWP의 `using:` 문법은 애초에 어셈블리명을 요구하지 않는다. 이 계열에서는
 `XmlnsDefinitionAttribute`가 internal이라 소비자가 붙일 수 없고 XAML 컴파일러도
