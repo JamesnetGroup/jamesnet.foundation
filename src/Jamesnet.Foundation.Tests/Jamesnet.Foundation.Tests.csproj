@@ -1,8 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <!--
     WPF flavor로 공용 소스(src/Shared)를 검사한다. Core 로직은 모든 flavor가 같은 소스를 쓰므로
     여기서 한 번 검증하면 된다. Xaml 쪽은 WPF에서 실제 창을 띄워 확인한다.
+    xUnit v3는 Microsoft.Testing.Platform으로 실행한다(global.json의 test.runner).
   -->
 
   <PropertyGroup>
@@ -11,12 +12,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
-    <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.1" />
+    <PackageReference Include="xunit.v3" Version="4.0.2" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,7 +4,7 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>13</LangVersion>
+    <LangVersion>latest</LangVersion>
 
     <!-- 모든 flavor가 같은 어셈블리 이름/네임스페이스를 갖는다.
          소비자는 플랫폼과 무관하게 항상 Jamesnet.Foundation 하나만 본다. -->

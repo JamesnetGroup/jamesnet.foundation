@@ -10,10 +10,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
 
@@ -21,7 +21,7 @@ jobs:
       # Visual Studio의 MSBuild가 필요하다. windows-latest 러너에는 VS가 있으므로
       # MSBuild를 PATH에 올려 전체 flavor를 담은 패키지를 만든다.
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
 
       - name: Build UWP flavor
         run: |

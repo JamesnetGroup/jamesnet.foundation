@@ -4,12 +4,12 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <EnableDefaultItems>false</EnableDefaultItems>
     <DefineSilverlight>true</DefineSilverlight>
-	<LangVersion>12</LangVersion>
+	<LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="OpenSilver" Version="3.3.3" />
-    <PackageReference Include="OpenSilver.Themes.Modern" Version="3.3.*" />
+    <PackageReference Include="OpenSilver.Themes.Modern" Version="3.3.0" />
   </ItemGroup>
 
   <ItemGroup>

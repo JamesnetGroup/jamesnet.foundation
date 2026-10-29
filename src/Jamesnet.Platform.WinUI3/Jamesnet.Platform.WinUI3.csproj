@@ -5,7 +5,7 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
-    <LangVersion>13</LangVersion>
+    <LangVersion>latest</LangVersion>
 
     <AssemblyName>Jamesnet.Foundation</AssemblyName>
     <RootNamespace>Jamesnet.Foundation</RootNamespace>
