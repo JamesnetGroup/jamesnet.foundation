@@ -34,14 +34,9 @@ public class MainViewModel : ViewModelBase
 
     private void OnMenuChanged()
     {
-        try
+        if (CurrentMenu != null)
         {
-            IView view = _container.Resolve<IView>(CurrentMenu.ContentName);
-            _layerManager.Show("Content", view);
-        }
-        catch (Exception ex)
-        {
-
+            _layerManager.Show("Content", _container.Resolve<IView>(CurrentMenu.ContentName));
         }
     }
 }

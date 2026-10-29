@@ -135,6 +135,6 @@ v10.0.0을 NuGet에 올리기 위한 조건이다.
 - [x] Phase 1 완료 (중복 제거)
 - [ ] Phase 2 결정 사항 문서 반영
 - [x] Phase 3-1 코어 테스트 통과
-- [ ] WPF · OpenSilver · Uno 데모 3종 정상 동작 확인
+- [x] WPF · OpenSilver · Uno 데모 3종 정상 동작 확인 (WinUI3 데모 포함, 메뉴 전환까지 실행 확인)
 - [ ] CI에서 전체 flavor(UWP 포함) 포함 pack 성공
 - [ ] `JAMESNETPACK001` 경고 없이 패키지 생성

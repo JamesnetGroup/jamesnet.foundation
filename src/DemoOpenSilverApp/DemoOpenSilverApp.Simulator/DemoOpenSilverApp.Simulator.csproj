@@ -7,6 +7,9 @@
 
   <ItemGroup>
     <PackageReference Include="OpenSilver.Simulator" Version="3.3.3" />
+    <!-- OpenSilver.Simulator가 끌어오는 8.0.x 버전에 알려진 취약점(NU1902/NU1903)이 있어 패치 버전으로 올린다. -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.14" />
   </ItemGroup>
 
   <ItemGroup>
