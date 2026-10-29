@@ -49,7 +49,7 @@
 
   <ItemGroup>
     <!-- Jamesnet.Foundation 코어는 이제 각 flavor 어셈블리에 함께 담겨 있어 별도 참조가 필요 없다. -->
-    <ProjectReference Include="..\..\Jamesnet.Platform.OpenSilver\Jamesnet.Platform.OpenSilver.csproj" />
+    <ProjectReference Include="..\..\..\src\Jamesnet.Foundation.OpenSilver\Jamesnet.Foundation.OpenSilver.csproj" />
   </ItemGroup>
 
 </Project>

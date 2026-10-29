@@ -46,24 +46,24 @@
   <!-- flavor 정의: 이름 -> 프로젝트, 산출물 경로 -->
   <ItemGroup>
     <JamesnetFlavor Include="wpf">
-      <Project>..\Jamesnet.Platform.WPF\Jamesnet.Platform.WPF.csproj</Project>
-      <Dll>..\Jamesnet.Platform.WPF\bin\$(Configuration)\net10.0-windows\Jamesnet.Foundation.dll</Dll>
+      <Project>..\Jamesnet.Foundation.Wpf\Jamesnet.Foundation.Wpf.csproj</Project>
+      <Dll>..\Jamesnet.Foundation.Wpf\bin\$(Configuration)\net10.0-windows\Jamesnet.Foundation.dll</Dll>
     </JamesnetFlavor>
     <JamesnetFlavor Include="opensilver">
-      <Project>..\Jamesnet.Platform.OpenSilver\Jamesnet.Platform.OpenSilver.csproj</Project>
-      <Dll>..\Jamesnet.Platform.OpenSilver\bin\$(Configuration)\netstandard2.0\Jamesnet.Foundation.dll</Dll>
+      <Project>..\Jamesnet.Foundation.OpenSilver\Jamesnet.Foundation.OpenSilver.csproj</Project>
+      <Dll>..\Jamesnet.Foundation.OpenSilver\bin\$(Configuration)\netstandard2.0\Jamesnet.Foundation.dll</Dll>
     </JamesnetFlavor>
     <JamesnetFlavor Include="winui3">
-      <Project>..\Jamesnet.Platform.WinUI3\Jamesnet.Platform.WinUI3.csproj</Project>
-      <Dll>..\Jamesnet.Platform.WinUI3\bin\$(Configuration)\net10.0-windows10.0.19041.0\Jamesnet.Foundation.dll</Dll>
+      <Project>..\Jamesnet.Foundation.WinUI3\Jamesnet.Foundation.WinUI3.csproj</Project>
+      <Dll>..\Jamesnet.Foundation.WinUI3\bin\$(Configuration)\net10.0-windows10.0.19041.0\Jamesnet.Foundation.dll</Dll>
     </JamesnetFlavor>
     <JamesnetFlavor Include="uno">
-      <Project>..\Jamesnet.Platform.Uno\Jamesnet.Platform.Uno.csproj</Project>
-      <Dll>..\Jamesnet.Platform.Uno\bin\$(Configuration)\net10.0-desktop\Jamesnet.Foundation.dll</Dll>
+      <Project>..\Jamesnet.Foundation.Uno\Jamesnet.Foundation.Uno.csproj</Project>
+      <Dll>..\Jamesnet.Foundation.Uno\bin\$(Configuration)\net10.0-desktop\Jamesnet.Foundation.dll</Dll>
     </JamesnetFlavor>
     <JamesnetFlavor Include="uwp">
-      <Project>..\Jamesnet.Platform.UWP\Jamesnet.Platform.Uwp.csproj</Project>
-      <Dll>..\Jamesnet.Platform.UWP\bin\$(Configuration)\Jamesnet.Foundation.dll</Dll>
+      <Project>..\Jamesnet.Foundation.Uwp\Jamesnet.Foundation.Uwp.csproj</Project>
+      <Dll>..\Jamesnet.Foundation.Uwp\bin\$(Configuration)\Jamesnet.Foundation.dll</Dll>
     </JamesnetFlavor>
   </ItemGroup>
 

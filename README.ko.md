@@ -1,87 +1,145 @@
 # Jamesnet.Foundation
 
-`Jamesnet.Foundation`은 다양한 플랫폼에서 공통적으로 사용할 수 있는 기반 라이브러리입니다. 여러 플랫폼별 프로젝트에서 핵심 기능을 제공하며, 아래에 나열된 각 플랫폼 패키지가 모두 이 `Jamesnet.Foundation`을 참조하고 있습니다.
+[English](README.md) | [한국어](README.ko.md) | [中文](README.cn.md)
+
+`Jamesnet.Foundation`은 XAML 기반 크로스 플랫폼 MVVM 라이브러리입니다. **패키지 하나로 모든 플랫폼을 지원합니다.** `Jamesnet.Foundation`만 설치하면 빌드할 때 플랫폼에 맞는 어셈블리가 자동으로 선택됩니다.
 
 [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Foundation.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Foundation/)  [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Foundation.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Foundation/)
 
-> **참고:** NuGet 날짜 정보는 제공되지 않으므로 포함되지 않았습니다.
+> **v10 — 단일 패키지.** 기존 `Jamesnet.Platform.*` 패키지들은 `Jamesnet.Foundation` 하나로 합쳐졌습니다. [9.x에서 올라오기](#9x에서-올라오기)를 참고하세요.
 
 ## 지원 플랫폼
 
-- **[Jamesnet.Platform.OpenSilver](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)**  [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.OpenSilver.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)  [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.OpenSilver.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.OpenSilver/)
+| 플랫폼 | 기준 버전 |
+|---|---|
+| WPF | .NET 10 |
+| OpenSilver | 3.3.3 |
+| Uno Platform | Uno.Sdk 6.7.30 |
+| WinUI 3 | Windows App SDK 2.6.4 |
+| UWP | UniversalWindowsPlatform 6.2.15 |
 
-- **[Jamesnet.Platform.Wpf](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)**  [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Wpf.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)  [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Wpf.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Wpf/)
-
-- **[Jamesnet.Platform.Uno](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)**  [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Uno.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)  [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Uno.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uno/)
-
-- **[Jamesnet.Platform.Uwp](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)**  [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.Uwp.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)  [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.Uwp.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.Uwp/)
-
-- **[Jamesnet.Platform.WinUI3](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)**  [![NuGet Version](https://img.shields.io/nuget/v/Jamesnet.Platform.WinUI3.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)  [![NuGet Downloads](https://img.shields.io/nuget/dt/Jamesnet.Platform.WinUI3.svg?style=flat-square)](https://www.nuget.org/packages/Jamesnet.Platform.WinUI3/)
-
-## 설치 방법
-
-NuGet 패키지 매니저를 사용하여 설치하세요:
+## 설치
 
 ```powershell
-Install-Package Jamesnet.Foundation
+dotnet add package Jamesnet.Foundation
 ```
 
-WPF 프로젝트의 경우, 추가로 다음 패키지를 설치합니다:
+플랫폼별 패키지를 따로 추가할 필요가 없습니다.
 
-```powershell
-Install-Package Jamesnet.Platform.Wpf
-```
+## 사용법
 
-## 사용 방법
+### 1. 부트스트래퍼
 
-`Jamesnet.Foundation`은 `AppBootstrapper` 클래스를 통해 애플리케이션 초기화를 지원합니다. 아래 예시는 WPF 프로젝트에서 `AppBootstrapper`를 상속받아 초기화를 진행하는 방법을 보여줍니다.
-
-> **참고:** `virtual` 키워드나 기존의 `SetMainWindow` 방식은 언급하지 않습니다.
-
-### 예제: WPF에서 사용하기
+앱 시작 시 한 번, 뷰·뷰모델·첫 화면을 등록합니다.
 
 ```csharp
 using Jamesnet.Foundation;
-using Jamesnet.Platform.Wpf; // WPF 플랫폼 패키지 참조
 
-namespace MyApp
+public class MyAppBootstrapper : AppBootstrapper
 {
-    public class MyAppBootstrapper : AppBootstrapper
+    protected override void RegisterViewModels(IViewModelMapper viewModelMapper)
     {
-        protected override void RegisterViewModels()
-        {
-            // View와 ViewModel을 매핑합니다.
-            ViewModelMapper.Register<MainContent, MainViewModel>();
-        }
-
-        protected override void RegisterDependencies(IContainer container)
-        {
-            Container.RegisterSingleton<IView, MainContent>("MainContent");
-        }
-
-        protected override void SettingsLayer(ILayerManager layer, IContainer container)
-        {
-            // "Main" 키로 Mapping을 수행합니다.
-            Mapping("Main", container.Resolve<IView>("MainContent"));
-        }
+        viewModelMapper.Register<MainContent, MainViewModel>();
     }
 
-    public partial class App : Application
+    protected override void RegisterDependencies(IContainer container)
     {
-        protected override void OnStartup(StartupEventArgs e)
-        {
-            base.OnStartup(e);
-            var bootstrapper = new MyAppBootstrapper();
-            bootstrapper.Run(); // 애플리케이션 초기화 실행
-        }
+        container.RegisterSingleton<IView, MainContent>(nameof(MainContent));
+    }
+
+    protected override void SettingsLayer(ILayerManager layer, IContainer container)
+    {
+        layer.Mapping("Main", container.Resolve<IView>(nameof(MainContent)));
     }
 }
 ```
 
-위 예제에서는 다음과 같이 구성됩니다:
+앱이 시작될 때 `new MyAppBootstrapper().Run();`을 호출합니다. (WPF는 `App` 생성자, Uno·WinUI 3는 `OnLaunched`)
 
-- **의존성 등록:**  `Container.RegisterSingleton<IView, MainContent>("MainContent");`를 통해 `MainContent`를 IView 인터페이스로 등록합니다.
+### 2. XAML 레이어
 
-- **뷰-뷰모델 매핑:**  `ViewModelMapper.Register<MainContent, MainViewModel>();`를 통해 `MainContent`와 `MainViewModel`을 매핑합니다.
+레이어는 이름이 붙은 자리입니다. 화면에 올라오면 스스로 등록되고, 그 이름에 매핑된 뷰를 보여줍니다.
 
-- **레이어 설정:**  `Mapping("Main", container.Resolve<IView>("MainContent"));`를 통해 "Main" 키로 해당 뷰를 Mapping 합니다.
+```xml
+<!-- WPF, OpenSilver -->
+<Window xmlns:james="http://jamesnet.dev/xaml">
+    <james:AnimatedXamlLayer LayerName="Main"/>
+</Window>
+
+<!-- Uno, WinUI 3, UWP -->
+<Page xmlns:james="using:Jamesnet.Foundation">
+    <james:AnimatedXamlLayer LayerName="Main"/>
+</Page>
+```
+
+`XamlLayer`는 내용을 즉시 바꾸고, `AnimatedXamlLayer`는 페이드로 전환합니다.
+
+### 3. 뷰모델
+
+```csharp
+public class MainViewModel : ViewModelBase, IViewLoadable
+{
+    private readonly ILayerManager _layers;
+    private readonly IContainer _container;
+    private string _name;
+
+    public MainViewModel(ILayerManager layers, IContainer container)
+    {
+        _layers = layers;
+        _container = container;
+        SaveCommand = new RelayCommand(Save, () => !string.IsNullOrEmpty(Name));
+    }
+
+    [CommandTrigger(nameof(SaveCommand))] // Name이 바뀌면 SaveCommand.CanExecute를 다시 평가
+    public string Name { get => _name; set => SetProperty(ref _name, value); }
+
+    public RelayCommand SaveCommand { get; }
+
+    public void OnLoaded(object view) { }
+
+    private void Save() => _layers.Show("Content", _container.Resolve<IView>("DetailContent"));
+}
+```
+
+뷰는 클래스에 `IView`를 붙입니다(`public partial class MainContent : UserControl, IView`). 컨테이너에서 뷰를 꺼내면 매핑된 뷰모델이 자동으로 만들어져 `DataContext`에 들어갑니다.
+
+### 4. 반응형 속성
+
+창 너비에 따라 값을 바꿉니다(기본 기준 768).
+
+```xml
+<ListView james:ResponsiveWidth.Desktop="200"
+          james:ResponsiveWidth.Mobile="100"
+          james:ResponsiveVisibility.Mobile="Collapsed"/>
+```
+
+모든 플랫폼에서 쓸 수 있는 속성: `ResponsiveWidth`, `ResponsiveHeight`, `ResponsiveMinHeight`, `ResponsiveMargin`, `ResponsiveBorderThickness`, `ResponsiveVisibility`, `ResponsiveFontSize`, `ResponsiveFontWeight`, `ResponsiveContent`, `ResponsiveChild`, `ResponsiveAnimationTo`. `ResponsiveColumns`(`UniformGrid`용)는 WPF·OpenSilver 전용입니다. Uno·WinUI 3·UWP에서는 `xmlns:responsive="using:Jamesnet.Foundation.Responsive"`를 선언합니다.
+
+## 샘플
+
+같은 화면을 플랫폼별로 만든 데모입니다.
+
+| 샘플 | 실행 |
+|---|---|
+| `samples/DemoWpfApp` | `dotnet run --project samples/DemoWpfApp` |
+| `samples/DemoOpenSilverApp` | `dotnet run --project samples/DemoOpenSilverApp/DemoOpenSilverApp.Simulator` |
+| `samples/DemoUnoApp` | `dotnet run --project samples/DemoUnoApp` |
+| `samples/DemoWinUI3App` | `dotnet run --project samples/DemoWinUI3App` |
+
+## 9.x에서 올라오기
+
+- `Jamesnet.Platform.*` 패키지 참조를 모두 `Jamesnet.Foundation` 하나로 바꿉니다.
+- `WPFLayer`, `OpenSilverLayer`, `UnoLayer`, `WinUI3Layer`, `UwpLayer` → `XamlLayer`, `AnimatedWPFLayer`, `AnimatedOpenSilverLayer` → `AnimatedXamlLayer`. 기존 이름도 동작하지만 `[Obsolete]`로 표시됩니다.
+- XAML은 `clr-namespace:...;assembly=Jamesnet.Platform.*` 대신 `http://jamesnet.dev/xaml`(WPF·OpenSilver) 또는 `using:Jamesnet.Foundation`(Uno·WinUI 3·UWP)을 씁니다.
+- 대상 프레임워크를 .NET 10으로 올립니다.
+
+## 저장소 구조
+
+```
+src/        라이브러리 (공용 소스 Shared + 플랫폼별 flavor 프로젝트 + 패키지 프로젝트)
+tests/      단위 테스트와 WPF UI 테스트
+samples/    데모 앱
+docs/       아키텍처와 로드맵
+```
+
+빌드·테스트: `dotnet test --project tests/Jamesnet.Foundation.Tests`. 설계 문서: [docs/ARCHITECTURE.ko.md](docs/ARCHITECTURE.ko.md), 로드맵: [docs/ROADMAP.ko.md](docs/ROADMAP.ko.md).

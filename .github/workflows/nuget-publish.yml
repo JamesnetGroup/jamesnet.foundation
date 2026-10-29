@@ -24,9 +24,7 @@ jobs:
         uses: microsoft/setup-msbuild@v3
 
       - name: Build UWP flavor
-        run: |
-          nuget restore src/Jamesnet.Foundation.sln
-          msbuild src/Jamesnet.Platform.UWP/Jamesnet.Platform.Uwp.csproj /p:Configuration=Release /p:Platform=AnyCPU
+        run: msbuild src/Jamesnet.Foundation.Uwp/Jamesnet.Foundation.Uwp.csproj -restore /p:Configuration=Release /p:Platform=AnyCPU
 
       # Jamesnet.Foundation은 이제 단 하나의 패키지다.
       # 모든 플랫폼 flavor가 이 패키지 하나에 담긴다.

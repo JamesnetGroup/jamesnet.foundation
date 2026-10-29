@@ -21,7 +21,7 @@ WinUI3와 UWP도 계속 지원하지만 검증 순서는 뒤다. 어떤 플랫�
 - [x] 코어 소스를 `src/Shared/Core/`로 이동, 각 flavor가 자기완결형
 - [x] flavor 자동 선택 (`buildTransitive/Jamesnet.Foundation.targets`)
 - [x] 기준선 최신화 (.NET 10 / OpenSilver 3.3.3 / Uno.Sdk 6.6.42 / WindowsAppSDK 2.4.0)
-- [x] 버전 일원화 (`src/Directory.Build.props`)
+- [x] 버전 일원화 (루트 `Directory.Build.props`)
 - [x] 기존 타입명을 `[Obsolete]` 별칭으로 유지
 - [x] XAML 네임스페이스 통합 (WPF·OpenSilver는 `http://jamesnet.dev/xaml`,
       Uno·WinUI3·UWP는 `using:Jamesnet.Foundation` — 양쪽 다 어셈블리명이 드러나지 않음)
@@ -88,7 +88,7 @@ NuGet에 `Jamesnet.Platform.OpenSilver`, `.Wpf`, `.Uno`, `.Uwp`, `.WinUI3`가 �
 
 ### 3-1. 테스트
 
-`src/Jamesnet.Foundation.Tests` (xUnit, WPF flavor로 공용 소스를 검사).
+`tests/Jamesnet.Foundation.Tests` (xUnit, WPF flavor로 공용 소스를 검사).
 
 - [x] 코어 단위 테스트 (`Container`, `LayerManager`, `RelayCommand`, `ViewModelBase`, Yaml)
 - [x] WPF 실제 창 테스트 (`XamlLayer`, `AnimatedXamlLayer`, Responsive*, 레이어 자동 등록)
@@ -104,17 +104,26 @@ NuGet에 `Jamesnet.Platform.OpenSilver`, `.Wpf`, `.Uno`, `.Uwp`, `.WinUI3`가 �
 
 ### 3-3. 데모
 
-- [x] Uno 데모 앱 (`src/DemoUnoApp`, 데스크톱. 메뉴 전환과 반응형 메뉴 폭까지 실행 확인)
-- [x] WinUI3 데모 앱 (`src/DemoWinUI3App`, MSIX 없이 실행. 메뉴 전환 실행 확인)
+- [x] Uno 데모 앱 (`samples/DemoUnoApp`, 데스크톱. 메뉴 전환과 반응형 메뉴 폭까지 실행 확인)
+- [x] WinUI3 데모 앱 (`samples/DemoWinUI3App`, MSIX 없이 실행. 메뉴 전환 실행 확인)
 - [ ] 데모 3종이 **동일한 View/ViewModel 코드**를 공유하도록 구성 —
       통합이 실제로 성립하는지 보여주는 가장 좋은 증거가 된다
+
+### 3-4. 저장소 정리
+
+- [x] `src/`(라이브러리) · `tests/` · `samples/`로 분리, 솔루션은 루트의 `Jamesnet.Foundation.slnx`
+- [x] flavor 프로젝트 이름을 `Jamesnet.Platform.*` → `Jamesnet.Foundation.*`로 통일
+      (빌드 결과물·네임스페이스는 그대로라 소비자 영향 없음)
+- [x] 쓰지 않는 잔재 제거 (빈 `WpfApp1`, UWP 9.x nuspec과 저장소에 들어 있던 `nuget.exe`,
+      어디서도 컴파일되지 않던 `InjectAttribute`)
+- [x] 전 의존성 최신화 (Windows App SDK 2.6.4, Uno.Sdk 6.7.30, xUnit v3, Actions 최신 메이저)
 
 ---
 
 ## Phase 4 — 확장
 
-- [ ] AvaloniaUI flavor (`src/Jamesnet.Platform.AvaloniaUI`에 자리만 있음)
-- [ ] MAUI flavor (`src/Jamesnet.Platform.MAUI`에 자리만 있음)
+- [ ] AvaloniaUI flavor (`src/Jamesnet.Foundation.Avalonia`에 자리만 있음)
+- [ ] MAUI flavor (`src/Jamesnet.Foundation.Maui`에 자리만 있음)
 
 새 플랫폼 추가 절차는 이미 고정되어 있다.
 

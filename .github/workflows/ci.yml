@@ -19,23 +19,21 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Test
-        run: dotnet test --project src/Jamesnet.Foundation.Tests/Jamesnet.Foundation.Tests.csproj -c Release
+        run: dotnet test --project tests/Jamesnet.Foundation.Tests/Jamesnet.Foundation.Tests.csproj -c Release
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v3
 
       - name: Build UWP flavor
-        run: |
-          nuget restore src/Jamesnet.Foundation.sln
-          msbuild src/Jamesnet.Platform.UWP/Jamesnet.Platform.Uwp.csproj /p:Configuration=Release /p:Platform=AnyCPU
+        run: msbuild src/Jamesnet.Foundation.Uwp/Jamesnet.Foundation.Uwp.csproj -restore /p:Configuration=Release /p:Platform=AnyCPU
 
       # 모든 flavor가 빌드되고 한 패키지에 담기는지 확인한다.
       - name: Pack (all flavors)
         run: dotnet pack src/Jamesnet.Foundation.Package/Jamesnet.Foundation.Package.csproj -c Release -p:JamesnetFlavors="wpf;opensilver;winui3;uno;uwp"
 
-      - name: Build demos
+      - name: Build samples
         run: |
-          dotnet build src/DemoWpfApp/DemoWpfApp.csproj -c Release
-          dotnet build src/DemoOpenSilverApp/DemoOpenSilverApp/DemoOpenSilverApp.csproj -c Release
-          dotnet build src/DemoUnoApp/DemoUnoApp.csproj -c Release
-          dotnet build src/DemoWinUI3App/DemoWinUI3App.csproj -c Release
+          dotnet build samples/DemoWpfApp/DemoWpfApp.csproj -c Release
+          dotnet build samples/DemoOpenSilverApp/DemoOpenSilverApp.Simulator/DemoOpenSilverApp.Simulator.csproj -c Release
+          dotnet build samples/DemoUnoApp/DemoUnoApp.csproj -c Release
+          dotnet build samples/DemoWinUI3App/DemoWinUI3App.csproj -c Release

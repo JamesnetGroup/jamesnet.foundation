@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jamesnet.Platform.WPF\Jamesnet.Platform.Wpf.csproj" />
+    <ProjectReference Include="..\..\src\Jamesnet.Foundation.Wpf\Jamesnet.Foundation.Wpf.csproj" />
   </ItemGroup>
 
   <ItemGroup>

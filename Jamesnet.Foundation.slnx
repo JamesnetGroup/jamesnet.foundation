@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Jamesnet.Foundation.Package/Jamesnet.Foundation.Package.csproj" />
+    <Project Path="src/Jamesnet.Foundation.Wpf/Jamesnet.Foundation.Wpf.csproj" />
+    <Project Path="src/Jamesnet.Foundation.OpenSilver/Jamesnet.Foundation.OpenSilver.csproj" />
+    <Project Path="src/Jamesnet.Foundation.Uno/Jamesnet.Foundation.Uno.csproj" />
+    <Project Path="src/Jamesnet.Foundation.WinUI3/Jamesnet.Foundation.WinUI3.csproj" />
+    <Project Path="src/Jamesnet.Foundation.Uwp/Jamesnet.Foundation.Uwp.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Jamesnet.Foundation.Tests/Jamesnet.Foundation.Tests.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/DemoWpfApp/DemoWpfApp.csproj" />
+    <Project Path="samples/DemoOpenSilverApp/DemoOpenSilverApp/DemoOpenSilverApp.csproj" />
+    <Project Path="samples/DemoOpenSilverApp/DemoOpenSilverApp.Simulator/DemoOpenSilverApp.Simulator.csproj" />
+    <Project Path="samples/DemoOpenSilverApp/DemoOpenSilverApp.Browser/DemoOpenSilverApp.Browser.csproj" />
+    <Project Path="samples/DemoUnoApp/DemoUnoApp.csproj" />
+    <Project Path="samples/DemoWinUI3App/DemoWinUI3App.csproj">
+      <Platform Project="x64" />
+    </Project>
+  </Folder>
+</Solution>

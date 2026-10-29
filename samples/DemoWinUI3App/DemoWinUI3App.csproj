@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jamesnet.Platform.WinUI3\Jamesnet.Platform.WinUI3.csproj" />
+    <ProjectReference Include="..\..\src\Jamesnet.Foundation.WinUI3\Jamesnet.Foundation.WinUI3.csproj" />
   </ItemGroup>
 
 </Project>

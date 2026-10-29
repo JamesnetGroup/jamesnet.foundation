@@ -66,10 +66,25 @@ OpenSilver 앱도 `net10.0`, Uno Desktop 앱도 `net10.0`이라 NuGet 입장에�
 링크 컴파일한다. 플랫폼 차이는 `#if`로 흡수한다.
 
 ```
-src/Shared/
-    Core/          코어 (DI 컨테이너, MVVM, LayerManager, …)
-    Xaml/          플랫폼 공통 XAML 코드 (XamlLayer, …)
+src/
+    Shared/                          소스 한 벌 (프로젝트 없음)
+        Core/                        코어 (DI 컨테이너, MVVM, LayerManager, …)
+        Xaml/                        플랫폼 공통 XAML 코드 (XamlLayer, Responsive*, …)
+    Jamesnet.Foundation.Wpf/         flavor 프로젝트 — Shared를 WPF로 컴파일 (+ WPF 전용 Docking)
+    Jamesnet.Foundation.OpenSilver/  flavor 프로젝트 (+ OpenSilver 전용 ContentSwitcher 등)
+    Jamesnet.Foundation.Uno/
+    Jamesnet.Foundation.WinUI3/
+    Jamesnet.Foundation.Uwp/
+    Jamesnet.Foundation.Avalonia/    예정 (자리만 있음)
+    Jamesnet.Foundation.Maui/        예정 (자리만 있음)
+    Jamesnet.Foundation.Package/     flavor DLL을 패키지 하나로 묶는다
+tests/Jamesnet.Foundation.Tests/     xUnit — 코어 + WPF 실제 창 테스트
+samples/Demo{Wpf,OpenSilver,Uno,WinUI3}App/   플랫폼별 데모 (같은 화면 구성)
+Jamesnet.Foundation.slnx
 ```
+
+flavor 프로젝트 이름은 `Jamesnet.Foundation.<플랫폼>`이지만 빌드 결과물은 모두
+`Jamesnet.Foundation.dll`이다. 프로젝트 이름은 저장소 안에서만 쓰이고 소비자에게는 보이지 않는다.
 
 ```csharp
 // src/Shared/Xaml/XamlLayer.cs — 이 파일 하나가 5개 플랫폼 전부를 담당한다
@@ -174,13 +189,13 @@ Uno·WinUI3·UWP의 `using:` 문법은 애초에 어셈블리명을 요구하지
 이 저장소가 지키는 규칙들이다.
 
 1. **플랫폼은 폐기하지 않는다.** 지원 가능한 모든 XAML 플랫폼을 유지한다.
-   `Jamesnet.Platform.AvaloniaUI`, `Jamesnet.Platform.MAUI`는 아직 자리만
+   `src/Jamesnet.Foundation.Avalonia`, `src/Jamesnet.Foundation.Maui`는 아직 자리만
    잡혀 있지만 같은 방식으로 합류할 예정이다.
 2. **패키지는 하나다.** 새 플랫폼이 늘어도 `flavors/<name>/` 폴더와 targets 조건
    한 줄이 추가될 뿐, 소비자가 받는 패키지 개수는 계속 하나다.
 3. **중복 구현을 만들지 않는다.** 플랫폼별 프로젝트에 같은 코드를 두 번 쓰게
    되거든, `Shared/`로 올리고 `#if`로 가르는 것이 맞는지 먼저 검토한다.
-4. **버전은 한 곳에서.** `src/Directory.Build.props`의 `JamesnetVersion` 하나만
+4. **버전은 한 곳에서.** 루트 `Directory.Build.props`의 `JamesnetVersion` 하나만
    고친다.
 5. **누락을 조용히 넘기지 않는다.** 일부 flavor만 담긴 패키지가 만들어지면
    `JAMESNETPACK001` 경고로 반드시 드러난다.
@@ -205,11 +220,17 @@ UWP는 레거시 non-SDK 프로젝트라 `dotnet build`로 빌드할 수 없다.
 | 항목 | 버전 |
 |---|---|
 | .NET | 10.0 |
+| C# | latest |
 | OpenSilver | 3.3.3 |
-| Uno.Sdk | 6.6.42 |
-| WindowsAppSDK (WinUI3) | 2.4.0 |
-| Windows SDK BuildTools | 10.0.28000.2526 |
+| Uno.Sdk | 6.7.30 (루트 `global.json`) |
+| WindowsAppSDK (WinUI3) | 2.6.4 |
+| Windows SDK BuildTools | 10.0.28000.2957 |
 | UWP (UniversalWindowsPlatform) | 6.2.15 |
+| xUnit | v3 (4.0.2), Microsoft.Testing.Platform |
+
+WinUI3/UWP의 대상 Windows 버전(19041, 최소 17763/18362)은 일부러 올리지 않는다.
+이 값은 "최신"이 아니라 소비자 앱이 맞춰야 하는 하한선이라, 올리면 오래된 Windows를
+대상으로 하는 앱이 패키지를 쓸 수 없게 된다.
 
 ## 8. 9.x에서 올라올 때
 
@@ -225,6 +246,3 @@ UWP는 레거시 non-SDK 프로젝트라 `dotnet build`로 빌드할 수 없다.
 ## 9. 앞으로
 
 남은 작업과 우선순위는 [ROADMAP.ko.md](ROADMAP.ko.md)에 정리되어 있다.
-가장 큰 항목은 `Responsive` 계열 통합으로, 현재 OpenSilver 12종 / WPF 5종 /
-Uno·WinUI3 각 1종 / UWP 0종으로 어긋나 있는 것을 `Shared/`로 올려 모든 플랫폼이
-동시에 전체 기능을 갖게 하는 일이다.

@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jamesnet.Platform.WPF\Jamesnet.Platform.WPF.csproj" />
+    <ProjectReference Include="..\..\src\Jamesnet.Foundation.Wpf\Jamesnet.Foundation.Wpf.csproj" />
   </ItemGroup>
 
 </Project>
