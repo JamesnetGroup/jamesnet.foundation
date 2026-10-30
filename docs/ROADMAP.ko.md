@@ -1,6 +1,6 @@
 # Jamesnet.Foundation 로드맵
 
-> 설계 배경과 원칙은 [ARCHITECTURE.ko.md](ARCHITECTURE.ko.md)를 참고한다.
+> 프로젝트 방향과 확정된 방침은 [DIRECTION.ko.md](DIRECTION.ko.md), 설계 배경은 [ARCHITECTURE.ko.md](ARCHITECTURE.ko.md)를 참고한다.
 > 이 문서는 "앞으로 무엇을 할 것인가"만 다룬다.
 
 ## 우선순위 원칙
@@ -20,7 +20,7 @@ WinUI3와 UWP도 계속 지원하지만 검증 순서는 뒤다. 어떤 플랫�
 - [x] `WPFLayer`/`OpenSilverLayer`/`UnoLayer`/`WinUI3Layer`/`UwpLayer` → `XamlLayer` 한 벌
 - [x] 코어 소스를 `src/Shared/Core/`로 이동, 각 flavor가 자기완결형
 - [x] flavor 자동 선택 (`buildTransitive/Jamesnet.Foundation.targets`)
-- [x] 기준선 최신화 (.NET 10 / OpenSilver 3.3.3 / Uno.Sdk 6.6.42 / WindowsAppSDK 2.4.0)
+- [x] 기준선 최신화 (.NET 10 / OpenSilver 3.3.3 / Uno.Sdk 6.7.30 / WindowsAppSDK 2.6.4)
 - [x] 버전 일원화 (루트 `Directory.Build.props`)
 - [x] 기존 타입명을 `[Obsolete]` 별칭으로 유지
 - [x] XAML 네임스페이스 통합 (WPF·OpenSilver는 `http://jamesnet.dev/xaml`,
@@ -65,21 +65,21 @@ WPF에만 Docking 계열(`DockingManager`, `DockingPanel`, `DockingCompass`,
 2. WPF flavor에만 두고 다른 플랫폼에는 아예 없다 (현재 상태)
 3. 인터페이스는 `Shared/`에 공통으로, 구현은 WPF만
 
-- [ ] 방침 결정 후 ARCHITECTURE.ko.md 원칙 항목에 추가
+- [x] WPF 전용 유지로 결정 ([DIRECTION.ko.md](DIRECTION.ko.md) 3-1)
 
 ### 2-2. 명명 규칙
 
 `XamlLayer`는 정했지만 나머지 타입의 규칙이 없다. `Xaml` 접두사를 일반 규칙으로
 삼을지, `XamlLayer`만 예외로 둘지 정한다.
 
-- [ ] 규칙 확정 후 문서화
-- [ ] 확정된 규칙에 맞춰 Phase 1 결과물 이름 정리
+- [x] `Xaml` 접두사는 `XamlLayer` 계열만으로 결정 ([DIRECTION.ko.md](DIRECTION.ko.md) 3-2)
+- [x] Phase 1 결과물 이름이 규칙에 맞음을 확인
 
 ### 2-3. 9.x 패키지 처리
 
 NuGet에 `Jamesnet.Platform.OpenSilver`, `.Wpf`, `.Uno`, `.Uwp`, `.WinUI3`가 그대로 남아 있다.
 
-- [ ] deprecate 표시 여부 결정
+- [x] v10 출시 후 deprecate하기로 결정 ([DIRECTION.ko.md](DIRECTION.ko.md) 3-3)
 - [ ] 표시한다면 `Jamesnet.Foundation`을 대체 패키지로 지정
 
 ---
@@ -142,7 +142,7 @@ NuGet에 `Jamesnet.Platform.OpenSilver`, `.Wpf`, `.Uno`, `.Uwp`, `.WinUI3`가 �
 v10.0.0을 NuGet에 올리기 위한 조건이다.
 
 - [x] Phase 1 완료 (중복 제거)
-- [ ] Phase 2 결정 사항 문서 반영
+- [x] Phase 2 결정 사항 문서 반영
 - [x] Phase 3-1 코어 테스트 통과
 - [x] WPF · OpenSilver · Uno 데모 3종 정상 동작 확인 (WinUI3 데모 포함, 메뉴 전환까지 실행 확인)
 - [ ] CI에서 전체 flavor(UWP 포함) 포함 pack 성공

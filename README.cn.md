@@ -142,4 +142,4 @@ samples/    演示应用
 docs/       架构与路线图(韩文)
 ```
 
-构建与测试:`dotnet test --project tests/Jamesnet.Foundation.Tests`。设计文档:[docs/ARCHITECTURE.ko.md](docs/ARCHITECTURE.ko.md)。
+构建与测试:`dotnet test --project tests/Jamesnet.Foundation.Tests`。项目方向:[docs/DIRECTION.ko.md](docs/DIRECTION.ko.md)。设计文档:[docs/ARCHITECTURE.ko.md](docs/ARCHITECTURE.ko.md)。

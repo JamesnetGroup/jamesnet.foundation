@@ -142,4 +142,4 @@ samples/    demo apps
 docs/       architecture and roadmap (Korean)
 ```
 
-Build and test: `dotnet test --project tests/Jamesnet.Foundation.Tests`. Design notes: [docs/ARCHITECTURE.ko.md](docs/ARCHITECTURE.ko.md).
+Build and test: `dotnet test --project tests/Jamesnet.Foundation.Tests`. Project direction: [docs/DIRECTION.ko.md](docs/DIRECTION.ko.md). Design notes: [docs/ARCHITECTURE.ko.md](docs/ARCHITECTURE.ko.md).

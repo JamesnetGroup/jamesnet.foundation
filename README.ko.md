@@ -142,4 +142,4 @@ samples/    데모 앱
 docs/       아키텍처와 로드맵
 ```
 
-빌드·테스트: `dotnet test --project tests/Jamesnet.Foundation.Tests`. 설계 문서: [docs/ARCHITECTURE.ko.md](docs/ARCHITECTURE.ko.md), 로드맵: [docs/ROADMAP.ko.md](docs/ROADMAP.ko.md).
+빌드·테스트: `dotnet test --project tests/Jamesnet.Foundation.Tests`. 방향성: [docs/DIRECTION.ko.md](docs/DIRECTION.ko.md), 설계 문서: [docs/ARCHITECTURE.ko.md](docs/ARCHITECTURE.ko.md), 로드맵: [docs/ROADMAP.ko.md](docs/ROADMAP.ko.md).
